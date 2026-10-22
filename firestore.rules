@@ -1,0 +1,324 @@
+rules_version = '2';
+
+// ===============================================================
+// Assumed Data Model
+// ===============================================================
+//
+// Collection: users
+// Document ID: {uid} (Firebase Auth UID)
+// Fields:
+//   - uid: string (required, 1..128 chars, immutable, matches auth.uid)
+//   - isAdmin: bool (required, false for standard users, prevents privilege escalation)
+//   - email: string (optional, valid email format, max 254 chars)
+//   - displayName: string (optional, max 100 chars)
+//   - photoURL: string (optional, valid URL, max 2048 chars)
+//   - phoneNumber: string (optional, max 30 chars)
+//   - createdAt: timestamp or ISO string (optional, immutable)
+//   - updatedAt: timestamp or ISO string (optional)
+//
+// Collection: orders
+// Document ID: {orderId}
+// Fields:
+//   - userId: string (required, 1..128 chars, matches auth.uid on user create, immutable for user)
+//   - status: string (required, enum: 'pending' | 'confirmed' | 'rejected' | 'expired')
+//   - price: number (required, positive number > 0)
+//   - orderId: string (optional, max 128 chars)
+//   - templateSlug: string (optional, max 100 chars)
+//   - pageSlug: string (optional, max 100 chars, set upon confirmation)
+//   - screenshotURL: string (optional, valid URL, max 2048 chars)
+//   - paymentPhone: string (optional, max 30 chars)
+//   - paymentMethod: string (optional, max 50 chars)
+//   - customerNotes: string (optional, max 1000 chars)
+//   - adminNote: string (optional, max 2000 chars, editable by admin only)
+//   - pageData: map (optional, custom message & keepsake inputs)
+//   - confirmedAt: timestamp or ISO string (optional, set by admin)
+//   - createdAt: timestamp or ISO string (optional, immutable)
+//   - updatedAt: timestamp or ISO string (optional)
+//
+// Collection: pages
+// Document ID: {slug}
+// Fields:
+//   - slug: string (required, 1..100 chars)
+//   - templateSlug: string (required, 1..100 chars)
+//   - recipientName: string (required, 1..100 chars)
+//   - senderName: string (required, 1..100 chars)
+//   - occasionDate: string or timestamp (optional, max 50 chars)
+//   - message: string (required, max 5000 chars)
+//   - theme: string (required, enum: 'rose' | 'lavender' | 'gold')
+//   - createdAt: timestamp or ISO string (optional)
+//   - updatedAt: timestamp or ISO string (optional)
+//   - userId: string (optional, max 128 chars)
+//   - orderId: string (optional, max 128 chars)
+//
+// Collection: admins
+// Document ID: {uid}
+// Fields:
+//   - role / email / permissions metadata (read-only for admins, writes disabled from client)
+//
+// Collection: templates
+// Document ID: {slug}
+// Fields:
+//   - slug: string (required, 1..100 chars)
+//   - title: string (required, 1..100 chars)
+//   - subtitle: string (optional, max 200 chars)
+//   - category: string (required, 1..50 chars)
+//   - theme: string (required, enum: 'rose' | 'lavender' | 'gold')
+//   - icon: string (required, enum: 'heart' | 'flower' | 'sparkles' | 'mail' | 'star' | 'ring')
+//   - price: number (required, >= 0)
+//   - description: string (optional, max 1000 chars)
+//   - isActive: bool (optional)
+//   - createdAt: timestamp or ISO string (optional)
+//   - updatedAt: timestamp or ISO string (optional)
+//
+// ===============================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Core Helper Functions
+    // ===============================================================
+
+    function isAuthenticated() {
+      return request.auth != null && request.auth.uid != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    function isValidUrl(url) {
+      return url is string &&
+        url.size() <= 2048 &&
+        (url.matches('^https://.*') || url.matches('^http://.*'));
+    }
+
+    function isValidEmail(email) {
+      return email is string &&
+        email.size() <= 254 &&
+        email.matches('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$');
+    }
+
+    function isValidDateOrTimestamp(val) {
+      return (val is timestamp) ||
+        (val is string && val.size() <= 40 && val.matches('^\\d{4}-\\d{2}-\\d{2}.*'));
+    }
+
+    // ===============================================================
+    // Domain Validator Functions
+    // ===============================================================
+
+    function isValidUser(data) {
+      return data.keys().hasOnly([
+          'uid', 'email', 'displayName', 'photoURL', 'phoneNumber',
+          'isAdmin', 'createdAt', 'updatedAt'
+        ]) &&
+        data.keys().hasAll(['uid', 'isAdmin']) &&
+        data.uid is string && data.uid.size() >= 1 && data.uid.size() <= 128 &&
+        data.isAdmin is bool &&
+        (!('email' in data) || isValidEmail(data.email)) &&
+        (!('displayName' in data) || (data.displayName is string && data.displayName.size() <= 100)) &&
+        (!('photoURL' in data) || isValidUrl(data.photoURL)) &&
+        (!('phoneNumber' in data) || (data.phoneNumber is string && data.phoneNumber.size() <= 30)) &&
+        (!('createdAt' in data) || isValidDateOrTimestamp(data.createdAt)) &&
+        (!('updatedAt' in data) || isValidDateOrTimestamp(data.updatedAt));
+    }
+
+    function isValidOrder(data) {
+      return data.keys().hasOnly([
+          'userId', 'orderId', 'status', 'price', 'templateSlug', 'pageSlug',
+          'screenshotURL', 'paymentPhone', 'paymentMethod', 'customerNotes',
+          'adminNote', 'pageData', 'confirmedAt', 'createdAt', 'updatedAt'
+        ]) &&
+        data.keys().hasAll(['userId', 'status', 'price']) &&
+        data.userId is string && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+        data.status in ['pending', 'confirmed', 'rejected', 'expired'] &&
+        data.price is number && data.price > 0 && data.price <= 1000000000 &&
+        (!('orderId' in data) || (data.orderId is string && data.orderId.size() <= 128)) &&
+        (!('templateSlug' in data) || (data.templateSlug is string && data.templateSlug.size() <= 100)) &&
+        (!('pageSlug' in data) || (data.pageSlug is string && data.pageSlug.size() <= 100)) &&
+        (!('screenshotURL' in data) || isValidUrl(data.screenshotURL)) &&
+        (!('paymentPhone' in data) || (data.paymentPhone is string && data.paymentPhone.size() <= 30)) &&
+        (!('paymentMethod' in data) || (data.paymentMethod is string && data.paymentMethod.size() <= 50)) &&
+        (!('customerNotes' in data) || (data.customerNotes is string && data.customerNotes.size() <= 1000)) &&
+        (!('adminNote' in data) || (data.adminNote is string && data.adminNote.size() <= 2000)) &&
+        (!('pageData' in data) || data.pageData is map) &&
+        (!('confirmedAt' in data) || isValidDateOrTimestamp(data.confirmedAt)) &&
+        (!('createdAt' in data) || isValidDateOrTimestamp(data.createdAt)) &&
+        (!('updatedAt' in data) || isValidDateOrTimestamp(data.updatedAt));
+    }
+
+    function isValidPage(data) {
+      return data.keys().hasOnly([
+          'slug', 'templateSlug', 'recipientName', 'senderName',
+          'occasionDate', 'message', 'theme', 'createdAt', 'updatedAt',
+          'userId', 'orderId'
+        ]) &&
+        data.keys().hasAll([
+          'slug', 'templateSlug', 'recipientName', 'senderName',
+          'message', 'theme'
+        ]) &&
+        data.slug is string && data.slug.size() >= 1 && data.slug.size() <= 100 &&
+        data.templateSlug is string && data.templateSlug.size() >= 1 && data.templateSlug.size() <= 100 &&
+        data.recipientName is string && data.recipientName.size() >= 1 && data.recipientName.size() <= 100 &&
+        data.senderName is string && data.senderName.size() >= 1 && data.senderName.size() <= 100 &&
+        data.message is string && data.message.size() <= 5000 &&
+        data.theme in ['rose', 'lavender', 'gold'] &&
+        (!('occasionDate' in data) || data.occasionDate == null ||
+          (data.occasionDate is string && data.occasionDate.size() <= 50) ||
+          data.occasionDate is timestamp) &&
+        (!('userId' in data) || (data.userId is string && data.userId.size() <= 128)) &&
+        (!('orderId' in data) || (data.orderId is string && data.orderId.size() <= 128)) &&
+        (!('createdAt' in data) || isValidDateOrTimestamp(data.createdAt)) &&
+        (!('updatedAt' in data) || isValidDateOrTimestamp(data.updatedAt));
+    }
+
+    function isValidTemplate(data) {
+      return data.keys().hasOnly([
+          'slug', 'title', 'subtitle', 'category', 'theme', 'icon',
+          'price', 'description', 'isActive', 'createdAt', 'updatedAt'
+        ]) &&
+        data.keys().hasAll(['slug', 'title', 'category', 'theme', 'icon', 'price']) &&
+        data.slug is string && data.slug.size() >= 1 && data.slug.size() <= 100 &&
+        data.title is string && data.title.size() >= 1 && data.title.size() <= 100 &&
+        (!('subtitle' in data) || (data.subtitle is string && data.subtitle.size() <= 200)) &&
+        data.category is string && data.category.size() >= 1 && data.category.size() <= 50 &&
+        data.theme in ['rose', 'lavender', 'gold'] &&
+        data.icon in ['heart', 'flower', 'sparkles', 'mail', 'star', 'ring'] &&
+        data.price is number && data.price >= 0 &&
+        (!('description' in data) || (data.description is string && data.description.size() <= 1000)) &&
+        (!('isActive' in data) || data.isActive is bool) &&
+        (!('createdAt' in data) || isValidDateOrTimestamp(data.createdAt)) &&
+        (!('updatedAt' in data) || isValidDateOrTimestamp(data.updatedAt));
+    }
+
+    // ===============================================================
+    // Default Deny Root Rule
+    // ===============================================================
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // ===============================================================
+    // Collection: users
+    // ===============================================================
+
+    match /users/{uid} {
+      // Authenticated user can read their own profile, or admins can read any
+      allow read: if isOwner(uid) || isAdmin();
+
+      // User can create their own profile if auth.uid == uid and isAdmin == false
+      allow create: if (
+        isOwner(uid) &&
+        request.resource.data.uid == uid &&
+        request.resource.data.isAdmin == false &&
+        isValidUser(request.resource.data)
+      ) || (
+        isAdmin() &&
+        isValidUser(request.resource.data)
+      );
+
+      // User can update their own profile, but cannot elevate themselves to isAdmin
+      allow update: if (
+        isOwner(uid) &&
+        request.resource.data.uid == resource.data.uid &&
+        request.resource.data.isAdmin == false &&
+        resource.data.isAdmin == false &&
+        (!('createdAt' in resource.data) || !('createdAt' in request.resource.data) || request.resource.data.createdAt == resource.data.createdAt) &&
+        isValidUser(request.resource.data)
+      ) || (
+        isAdmin() &&
+        isValidUser(request.resource.data)
+      );
+
+      // Delete disallowed
+      allow delete: if false;
+    }
+
+    // ===============================================================
+    // Collection: orders
+    // ===============================================================
+
+    match /orders/{orderId} {
+      // Authenticated user can read their own orders or admin can read all
+      allow read: if (isAuthenticated() && resource.data.userId == request.auth.uid) || isAdmin();
+
+      // User can create order if signed in, userId == request.auth.uid, status == 'pending', price is number > 0
+      allow create: if (
+        isAuthenticated() &&
+        request.resource.data.userId == request.auth.uid &&
+        request.resource.data.status == 'pending' &&
+        request.resource.data.price is number &&
+        request.resource.data.price > 0 &&
+        isValidOrder(request.resource.data)
+      ) || (
+        isAdmin() &&
+        isValidOrder(request.resource.data)
+      );
+
+      // User can update only screenshotURL, paymentPhone, and updatedAt when order status is 'pending'.
+      // Admin can update any field including status, pageSlug, adminNote, confirmedAt.
+      allow update: if (
+        isAuthenticated() &&
+        resource.data.userId == request.auth.uid &&
+        resource.data.status == 'pending' &&
+        request.resource.data.userId == resource.data.userId &&
+        request.resource.data.status == 'pending' &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['screenshotURL', 'paymentPhone', 'updatedAt']) &&
+        isValidOrder(request.resource.data)
+      ) || (
+        isAdmin() &&
+        isValidOrder(request.resource.data)
+      );
+
+      // Admin can delete orders
+      allow delete: if isAdmin();
+    }
+
+    // ===============================================================
+    // Collection: pages
+    // ===============================================================
+
+    match /pages/{slug} {
+      // Public read for all users and guests (for /p/[slug] keepsake viewing)
+      allow read: if true;
+
+      // Only admin (or backend Admin SDK) can create, update, or delete
+      allow create: if isAdmin() && isValidPage(request.resource.data);
+      allow update: if isAdmin() && isValidPage(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    // ===============================================================
+    // Collection: admins
+    // ===============================================================
+
+    match /admins/{uid} {
+      // Only admins can read
+      allow read: if isAdmin();
+
+      // Write is false (only modified via Firebase Admin SDK or Console)
+      allow write: if false;
+    }
+
+    // ===============================================================
+    // Collection: templates
+    // ===============================================================
+
+    match /templates/{slug} {
+      // Public read
+      allow read: if true;
+
+      // Write only by admin
+      allow create: if isAdmin() && isValidTemplate(request.resource.data);
+      allow update: if isAdmin() && isValidTemplate(request.resource.data);
+      allow delete: if isAdmin();
+    }
+  }
+}
