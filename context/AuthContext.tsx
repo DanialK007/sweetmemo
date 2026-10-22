@@ -30,6 +30,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
+      setLoading(false);
+      return;
+    }
+
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setLoading(false);
@@ -39,6 +44,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signInWithGoogle = async () => {
+    if (!process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
+      throw new Error(
+        "Firebase environment variables are missing. Please configure NEXT_PUBLIC_FIREBASE_API_KEY in Vercel settings."
+      );
+    }
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({ prompt: "select_account" });
     const result = await signInWithPopup(auth, provider);
