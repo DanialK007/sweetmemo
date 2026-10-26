@@ -1074,8 +1074,8 @@ export function BirthdayRetroCamera({
             <div
               className="cam shadow-2xl relative overflow-hidden"
               style={{
-                width: "310px",
-                padding: "14px 14px 16px",
+                width: "280px",
+                padding: "12px 12px 14px",
                 borderRadius: "30px 30px 34px 34px",
                 background:
                   "radial-gradient(120% 60% at 20% 0px, rgba(255, 255, 255, 0.9), transparent 55%), " +
@@ -1113,8 +1113,8 @@ export function BirthdayRetroCamera({
                 className="cam-mid"
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "1fr 40px",
-                  gap: "10px",
+                  gridTemplateColumns: "1fr 35px",
+                  gap: "8px",
                   alignItems: "start",
                 }}
               >
@@ -1354,8 +1354,8 @@ export function BirthdayRetroCamera({
                   style={{
                     flexDirection: "column",
                     alignItems: "center",
-                    gap: "12px",
-                    width: "40px",
+                    gap: "10px",
+                    width: "35px",
                     paddingTop: "4px",
                   }}
                 >
@@ -1365,13 +1365,13 @@ export function BirthdayRetroCamera({
                       flexDirection: "column",
                       justifyContent: "space-between",
                       alignItems: "center",
-                      width: "30px",
-                      height: "62px",
-                      padding: "6px 0",
-                      borderRadius: "15px",
+                      width: "26px",
+                      height: "54px",
+                      padding: "5px 0",
+                      borderRadius: "13px",
                       background: "linear-gradient(90deg, #c4c3bf, #f4f3f0 45%, #bdbdb8)",
                       boxShadow: "inset 0 1px 1px #fff, 0 2px 3px rgba(0,0,0,0.25)",
-                      fontSize: "10px",
+                      fontSize: "9px",
                       fontWeight: "bold",
                       color: "#7d7c78",
                     }}
@@ -1382,9 +1382,9 @@ export function BirthdayRetroCamera({
                   <span
                     className="pill"
                     style={{
-                      width: "26px",
-                      height: "14px",
-                      borderRadius: "7px",
+                      width: "22px",
+                      height: "12px",
+                      borderRadius: "6px",
                       background: "linear-gradient(#f2f1ee, #c9c8c4)",
                       boxShadow: "inset 0 1px 0 #fff, 0 1px 2px rgba(0,0,0,0.3)",
                     }}
@@ -1392,15 +1392,15 @@ export function BirthdayRetroCamera({
                   <span
                     className="pill"
                     style={{
-                      width: "26px",
-                      height: "14px",
-                      borderRadius: "7px",
+                      width: "22px",
+                      height: "12px",
+                      borderRadius: "6px",
                       background: "linear-gradient(#f2f1ee, #c9c8c4)",
                       boxShadow: "inset 0 1px 0 #fff, 0 1px 2px rgba(0,0,0,0.3)",
                     }}
                   />
-                  <span className="playbtn text-[10px] text-gray-500">▶</span>
-                  <span className="minilabel text-[7px] font-bold tracking-tighter">
+                  <span className="playbtn text-[9px] text-gray-500">▶</span>
+                  <span className="minilabel text-[6px] font-bold tracking-tighter">
                     PLAY
                   </span>
                 </div>
@@ -1425,8 +1425,8 @@ export function BirthdayRetroCamera({
                 <div
                   className="pad relative"
                   style={{
-                    width: "128px",
-                    height: "128px",
+                    width: "110px",
+                    height: "110px",
                     borderRadius: "50%",
                     background:
                       "radial-gradient(circle, transparent 36%, rgba(0,0,0,0.08) 37%, transparent 39%), " +
@@ -1446,8 +1446,8 @@ export function BirthdayRetroCamera({
                       top: "50%",
                       left: "50%",
                       transform: "translate(-50%, -50%)",
-                      width: "52px",
-                      height: "52px",
+                      width: "44px",
+                      height: "44px",
                       borderRadius: "50%",
                       display: "flex",
                       alignItems: "center",
@@ -1455,7 +1455,7 @@ export function BirthdayRetroCamera({
                       background: "radial-gradient(circle at 40% 30%, #fff, #d8d7d3 60%, #b5b4b0)",
                       boxShadow: "inset 0 -2px 3px rgba(0,0,0,0.2), 0 2px 3px rgba(0,0,0,0.3)",
                       fontWeight: "bold",
-                      fontSize: "12px",
+                      fontSize: "11px",
                       border: "1px solid #8a8985",
                       color: colors.accent,
                     }}
