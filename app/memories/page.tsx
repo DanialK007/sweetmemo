@@ -17,6 +17,11 @@ import FadeContent from "@/components/FadeContent";
 import { useLanguage } from "@/context/LanguageContext";
 import { useAuth } from "@/context/AuthContext";
 import { getUserPages } from "@/lib/firestore";
+import {
+  BirthdayRetroCamera,
+  defaultBirthdayData,
+  type BirthdayCardData,
+} from "@/components/templates/BirthdayRetroCamera";
 
 interface SavedPage {
   slug: string;
@@ -156,59 +161,73 @@ export default function TodayPage() {
                 </div>
 
                 {pages.length > 0 ? (
-                  <div className="divide-y divide-[#f8ebed] mt-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
                     {pages.map((p) => (
-                      <article
+                      <div
                         key={p.slug}
-                        className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 group"
+                        className="group relative rounded-2xl border border-[#f4e6e9] bg-white p-3 shadow-sm hover:shadow-md transition-all overflow-hidden"
                       >
-                        <div>
-                          <h3 className="font-serif font-bold text-base text-[#56343e] group-hover:text-[#d92d5c] transition-colors">
+                        {/* Card Preview */}
+                        <div className="aspect-[9/16] rounded-xl overflow-hidden bg-gradient-to-b mb-3 relative">
+                          {p.templateSlug === "soft-confetti" || p.birthdayData ? (
+                            <div className="w-full h-full transform scale-50 origin-top">
+                              <BirthdayRetroCamera
+                                data={p.birthdayData || {
+                                  ...defaultBirthdayData,
+                                  recipientName: p.recipientName,
+                                  senderName: p.senderName.startsWith("—") ? p.senderName : `— ${p.senderName}`,
+                                  occasionDate: p.occasionDate || defaultBirthdayData.occasionDate,
+                                  letterContent: p.message || defaultBirthdayData.letterContent,
+                                }}
+                                mode="editor-preview"
+                                theme={p.theme as "rose" | "lavender" | "gold"}
+                              />
+                            </div>
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#f8f6fd] to-[#f0edf9]">
+                              <span className="text-4xl">💝</span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Card Info */}
+                        <div className="space-y-1">
+                          <h3 className="font-serif font-bold text-sm text-[#56343e] truncate">
                             {language === "my"
                               ? `${p.recipientName} အတွက်`
                               : `For ${p.recipientName}`}
                           </h3>
-                          <p className="text-xs text-[#99848a] mt-0.5">
+                          <p className="text-[11px] text-[#99848a] truncate">
                             {language === "my"
                               ? `${p.senderName} ထံမှ`
-                              : `From ${p.senderName}`}{" "}
-                            · {new Date(p.createdAt).toLocaleDateString()}
+                              : `From ${p.senderName}`}
                           </p>
-
-                          <div className="flex items-center gap-3 mt-2">
-                            <Link
-                              href={`/p/${p.slug}`}
-                              className="inline-flex items-center gap-1 text-xs font-bold text-[#c32c54] hover:underline"
-                            >
-                              <span>{t.todayOpenPage}</span>
-                              <ArrowUpRight size={13} />
-                            </Link>
-
-                            <button
-                              onClick={() => copy(p.slug)}
-                              className="inline-flex items-center gap-1 text-xs font-bold text-[#806c72] hover:text-[#56343e] cursor-pointer"
-                            >
-                              {copied === p.slug ? (
-                                <>
-                                  <Check size={13} className="text-green-600" />
-                                  <span className="text-green-600">
-                                    {t.todayCopied}
-                                  </span>
-                                </>
-                              ) : (
-                                <>
-                                  <Copy size={13} />
-                                  <span>{t.todayCopyLink}</span>
-                                </>
-                              )}
-                            </button>
-                          </div>
+                          <p className="text-[10px] text-[#9b848a]">
+                            {new Date(p.createdAt).toLocaleDateString()}
+                          </p>
                         </div>
 
-                        <span className="self-start sm:self-auto px-3 py-1 rounded-full bg-[#fbebef] text-[#ba5870] text-[10px] font-bold uppercase tracking-wider">
-                          {p.theme}
-                        </span>
-                      </article>
+                        {/* Actions */}
+                        <div className="flex items-center gap-2 mt-3 pt-2 border-t border-[#f8ebed]">
+                          <Link
+                            href={`/p/${p.slug}`}
+                            className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg bg-[#d92d5c] hover:bg-[#bf214c] text-white text-[10px] font-bold transition-colors"
+                          >
+                            <span>{t.todayOpenPage}</span>
+                            <ArrowUpRight size={11} />
+                          </Link>
+                          <button
+                            onClick={() => copy(p.slug)}
+                            className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-[#f8ebed] hover:bg-[#f0dce1] text-[#806c72] hover:text-[#56343e] transition-colors cursor-pointer"
+                          >
+                            {copied === p.slug ? (
+                              <Check size={12} className="text-green-600" />
+                            ) : (
+                              <Copy size={12} />
+                            )}
+                          </button>
+                        </div>
+                      </div>
                     ))}
                   </div>
                 ) : (
