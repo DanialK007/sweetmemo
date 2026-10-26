@@ -161,16 +161,16 @@ export default function TodayPage() {
                 </div>
 
                 {pages.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-4">
                     {pages.map((p) => (
                       <div
                         key={p.slug}
-                        className="group relative rounded-2xl border border-[#f4e6e9] bg-white p-3 shadow-sm hover:shadow-md transition-all overflow-hidden"
+                        className="group relative rounded-3xl border border-[#f4e6e9] bg-white p-4 shadow-sm hover:shadow-lg transition-all overflow-hidden"
                       >
                         {/* Card Preview */}
-                        <div className="aspect-[9/16] rounded-xl overflow-hidden bg-gradient-to-b mb-3 relative">
+                        <div className="aspect-[4/3] rounded-2xl overflow-hidden bg-gradient-to-b mb-4 relative">
                           {p.templateSlug === "soft-confetti" || p.birthdayData ? (
-                            <div className="w-full h-full transform scale-50 origin-top">
+                            <div className="w-full h-full transform scale-75 origin-top">
                               <BirthdayRetroCamera
                                 data={p.birthdayData || {
                                   ...defaultBirthdayData,
@@ -185,7 +185,7 @@ export default function TodayPage() {
                             </div>
                           ) : (
                             <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#f8f6fd] to-[#f0edf9]">
-                              <span className="text-4xl">💝</span>
+                              <span className="text-6xl">💝</span>
                             </div>
                           )}
                         </div>
