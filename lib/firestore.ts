@@ -56,10 +56,7 @@ export async function getPageBySlug(slug: string): Promise<PageData | null> {
   }
 
   const doc = querySnapshot.docs[0];
-  return {
-    id: doc.id,
-    ...doc.data(),
-  } as PageData;
+  return doc.data() as PageData;
 }
 
 /**
@@ -70,8 +67,5 @@ export async function getUserPages(userId: string): Promise<PageData[]> {
   const q = query(pagesRef, where("userId", "==", userId));
   const querySnapshot = await getDocs(q);
 
-  return querySnapshot.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-  })) as PageData[];
+  return querySnapshot.docs.map((doc) => doc.data() as PageData);
 }
