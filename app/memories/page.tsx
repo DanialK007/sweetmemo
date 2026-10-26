@@ -173,7 +173,7 @@ export default function TodayPage() {
                         className="group relative rounded-3xl border border-[#f4e6e9] bg-white p-4 shadow-sm hover:shadow-lg transition-all overflow-hidden"
                       >
                         {/* Card Preview */}
-                        <div className="aspect-4/3 scale-[2.25] translate-y-12 rounded-2xl overflow-hidden bg-gradient-to-b mb-4 relative">
+                        <div className="aspect-4/3 scale-[2.25] translate-y-12 rounded-2xl overflow-hidden bg-linear-to-b mb-4 relative">
                           {p.templateSlug === "soft-confetti" ||
                           p.birthdayData ? (
                             <div className="w-full h-full transform scale-50 origin-top">
@@ -198,7 +198,7 @@ export default function TodayPage() {
                               />
                             </div>
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#f8f6fd] to-[#f0edf9]">
+                            <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-[#f8f6fd] to-[#f0edf9]">
                               <span className="text-6xl">💝</span>
                             </div>
                           )}
@@ -220,7 +220,7 @@ export default function TodayPage() {
                                 : `From ${p.senderName}`}
                             </p>
                             <p className="text-[10px] text-[#9b848a]">
-                              {p.createdAt ? new Date(p.createdAt.seconds * 1000).toLocaleDateString() : "N/A"}
+                              {p.createdAt ? new Date(p.createdAt?.toDate?.() || p.createdAt).toLocaleDateString() : "N/A"}
                             </p>
                           </div>
 
