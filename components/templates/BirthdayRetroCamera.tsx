@@ -1072,14 +1072,20 @@ export function BirthdayRetroCamera({
 
             {/* ─── THE RETRO CAMERA ─── */}
             <div
-              className="cam rounded-[44px] p-4.5 pt-5 shadow-2xl border-4 relative overflow-hidden"
+              className="cam shadow-2xl border-4 relative overflow-hidden"
               style={{
+                padding: "14px 14px 16px",
+                borderRadius: "30px 30px 34px 34px",
                 background:
-                  theme === "gold"
-                    ? "linear-gradient(to bottom, #ffffff, #f7f5f0, #e8e0d0)"
-                    : theme === "lavender"
-                      ? "linear-gradient(to bottom, #ffffff, #f8f6fd, #e8e4f0)"
-                      : "linear-gradient(to bottom, #ffffff, #f7f5f5, #eae5e5)",
+                  "radial-gradient(120% 60% at 20% 0px, rgba(255, 255, 255, 0.9), transparent 55%), " +
+                  "linear-gradient(100deg, rgba(255, 255, 255, 0) 30%, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 60%), " +
+                  "linear-gradient(165deg, #f6f5f2, #dcdbd7 38%, #efeefb 58%, #c8c7c3)",
+                boxShadow:
+                  "inset 0 2px 1px #fff, " +
+                  "inset 0 -4px 8px rgba(0, 0, 0, 0.16), " +
+                  "inset 0 0 0 1px rgba(0, 0, 0, 0.08), " +
+                  "0 2px 0 #b6b5b1, " +
+                  "0 26px 34px -18px rgba(40, 30, 40, 0.55)",
                 borderColor:
                   theme === "gold"
                     ? "#e0d0b0"
@@ -1089,7 +1095,7 @@ export function BirthdayRetroCamera({
               }}
             >
               {/* Top Bar */}
-              <div className="cam-top flex items-center justify-between px-2 pb-2 text-[9px] font-mono tracking-widest text-gray-400 font-bold uppercase">
+              <div className="cam-top flex items-center justify-between" style={{ height: "22px", margin: "0 4px 8px" }}>
                 <span className="speaker flex gap-0.5">
                   {Array.from({ length: 8 }).map((_, i) => (
                     <i
@@ -1098,14 +1104,14 @@ export function BirthdayRetroCamera({
                     />
                   ))}
                 </span>
-                <span className="brand font-extrabold tracking-widest text-gray-400">
+                <span className="brand font-extrabold tracking-widest text-gray-400 text-[9px]">
                   PIXIE&nbsp;5.0
                 </span>
                 <span className="led w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               </div>
 
               {/* Mid Section: Screen Bezel + Side Controls */}
-              <div className="cam-mid flex gap-2.5 items-center">
+              <div className="cam-mid" style={{ display: "grid", gridTemplateColumns: "1fr 40px", gap: "10px", alignItems: "start" }}>
                 {/* Bezel & LCD Screen */}
                 <div
                   className="bezel flex-1 rounded-[26px] p-2 shadow-inner border-2"
@@ -1352,7 +1358,7 @@ export function BirthdayRetroCamera({
               </div>
 
               {/* Camera Bottom Controls: Jog-Dial Pad */}
-              <div className="cam-bot flex items-center justify-between pt-3 px-2">
+              <div className="cam-bot" style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", alignItems: "center", marginTop: "14px" }}>
                 <div className="smallbtns flex flex-col text-[7px] font-bold text-gray-400 gap-1 select-none">
                   <span>MENU</span>
                   <span>DISP</span>
