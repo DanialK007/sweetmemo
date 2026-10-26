@@ -88,7 +88,9 @@ export default function TodayPage() {
             <Heart size={26} />
           </div>
           <h1 className="font-serif font-extrabold text-2xl text-[#512b38]">
-            {language === "my" ? "အကောင့်ဝင်ရန် လိုအပ်ပါသည်" : "Sign in required"}
+            {language === "my"
+              ? "အကောင့်ဝင်ရန် လိုအပ်ပါသည်"
+              : "Sign in required"}
           </h1>
           <p className="text-xs text-[#8e7c81] mt-2 mb-6 leading-relaxed">
             {language === "my"
@@ -130,9 +132,7 @@ export default function TodayPage() {
             <h1 className="font-serif font-extrabold text-3xl sm:text-5xl text-[#432a32] tracking-tight mt-1">
               {t.todayTitle}
             </h1>
-            <p className="text-sm text-[#88757a] mt-2">
-              {t.todaySubtitle}
-            </p>
+            <p className="text-sm text-[#88757a] mt-2">{t.todaySubtitle}</p>
           </div>
         </FadeContent>
 
@@ -140,7 +140,12 @@ export default function TodayPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Main List */}
           <div className="lg:col-span-8">
-            <FadeContent effect="mist" duration={1.6} delay={0.4} trigger="mount">
+            <FadeContent
+              effect="mist"
+              duration={1.6}
+              delay={0.4}
+              trigger="mount"
+            >
               <section className="bg-white rounded-3xl border border-[#f4e6e9] p-6 sm:p-8 shadow-sm">
                 <div className="flex items-start justify-between pb-6 border-b border-[#f4e6e9] gap-4">
                   <div>
@@ -168,17 +173,26 @@ export default function TodayPage() {
                         className="group relative rounded-3xl border border-[#f4e6e9] bg-white p-4 shadow-sm hover:shadow-lg transition-all overflow-hidden"
                       >
                         {/* Card Preview */}
-                        <div className="aspect-[4/3] rounded-2xl overflow-hidden bg-gradient-to-b mb-4 relative">
-                          {p.templateSlug === "soft-confetti" || p.birthdayData ? (
-                            <div className="w-full h-full transform scale-75 origin-top">
+                        <div className="aspect-4/3 scale-[2.25] translate-y-12 rounded-2xl overflow-hidden bg-gradient-to-b mb-4 relative">
+                          {p.templateSlug === "soft-confetti" ||
+                          p.birthdayData ? (
+                            <div className="w-full h-full transform scale-50 origin-top">
                               <BirthdayRetroCamera
-                                data={p.birthdayData || {
-                                  ...defaultBirthdayData,
-                                  recipientName: p.recipientName,
-                                  senderName: p.senderName.startsWith("—") ? p.senderName : `— ${p.senderName}`,
-                                  occasionDate: p.occasionDate || defaultBirthdayData.occasionDate,
-                                  letterContent: p.message || defaultBirthdayData.letterContent,
-                                }}
+                                data={
+                                  p.birthdayData || {
+                                    ...defaultBirthdayData,
+                                    recipientName: p.recipientName,
+                                    senderName: p.senderName.startsWith("—")
+                                      ? p.senderName
+                                      : `— ${p.senderName}`,
+                                    occasionDate:
+                                      p.occasionDate ||
+                                      defaultBirthdayData.occasionDate,
+                                    letterContent:
+                                      p.message ||
+                                      defaultBirthdayData.letterContent,
+                                  }
+                                }
                                 mode="editor-preview"
                                 theme={p.theme as "rose" | "lavender" | "gold"}
                               />
@@ -190,42 +204,46 @@ export default function TodayPage() {
                           )}
                         </div>
 
-                        {/* Card Info */}
-                        <div className="space-y-1">
-                          <h3 className="font-serif font-bold text-sm text-[#56343e] truncate">
-                            {language === "my"
-                              ? `${p.recipientName} အတွက်`
-                              : `For ${p.recipientName}`}
-                          </h3>
-                          <p className="text-[11px] text-[#99848a] truncate">
-                            {language === "my"
-                              ? `${p.senderName} ထံမှ`
-                              : `From ${p.senderName}`}
-                          </p>
-                          <p className="text-[10px] text-[#9b848a]">
-                            {new Date(p.createdAt).toLocaleDateString()}
-                          </p>
-                        </div>
+                        <div className="h-20"></div>
 
-                        {/* Actions */}
-                        <div className="flex items-center gap-2 mt-3 pt-2 border-t border-[#f8ebed]">
-                          <Link
-                            href={`/p/${p.slug}`}
-                            className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg bg-[#d92d5c] hover:bg-[#bf214c] text-white text-[10px] font-bold transition-colors"
-                          >
-                            <span>{t.todayOpenPage}</span>
-                            <ArrowUpRight size={11} />
-                          </Link>
-                          <button
-                            onClick={() => copy(p.slug)}
-                            className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-[#f8ebed] hover:bg-[#f0dce1] text-[#806c72] hover:text-[#56343e] transition-colors cursor-pointer"
-                          >
-                            {copied === p.slug ? (
-                              <Check size={12} className="text-green-600" />
-                            ) : (
-                              <Copy size={12} />
-                            )}
-                          </button>
+                        <div className="absolute inset-0 z-5 bg-linear-to-t from-white via-white/50 from-5% via-60% to-80% flex flex-col justify-end p-4">
+                          {/* Card Info */}
+                          <div className="space-y-1 z-10 relative">
+                            <h3 className="font-serif font-bold text-lg text-[#56343e] truncate">
+                              {language === "my"
+                                ? `${p.recipientName} အတွက်`
+                                : `For ${p.recipientName}`}
+                            </h3>
+                            <p className="text-[11px] text-[#99848a] truncate">
+                              {language === "my"
+                                ? `${p.senderName} မှ`
+                                : `From ${p.senderName}`}
+                            </p>
+                            <p className="text-[10px] text-[#9b848a]">
+                              {p.createdAt ? new Date(p.createdAt.seconds * 1000).toLocaleDateString() : "N/A"}
+                            </p>
+                          </div>
+
+                          {/* Actions */}
+                          <div className="flex z-10 relative items-center gap-2 mt-3 pt-2 border-t border-[#f8ebed2e]">
+                            <Link
+                              href={`/p/${p.slug}`}
+                              className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg bg-[#d92d5c] hover:bg-[#bf214c] text-white text-[10px] font-bold transition-colors"
+                            >
+                              <span>{t.todayOpenPage}</span>
+                              <ArrowUpRight size={11} />
+                            </Link>
+                            <button
+                              onClick={() => copy(p.slug)}
+                              className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-[#f8ebed] hover:bg-[#f0dce1] text-[#806c72] hover:text-[#56343e] transition-colors cursor-pointer"
+                            >
+                              {copied === p.slug ? (
+                                <Check size={12} className="text-green-600" />
+                              ) : (
+                                <Copy size={12} />
+                              )}
+                            </button>
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -256,7 +274,12 @@ export default function TodayPage() {
 
           {/* Sidebar Note */}
           <div className="lg:col-span-4">
-            <FadeContent effect="mist" duration={1.6} delay={0.4} trigger="mount">
+            <FadeContent
+              effect="mist"
+              duration={1.6}
+              delay={0.4}
+              trigger="mount"
+            >
               <aside className="bg-gradient-to-br from-white to-[#f9e9ed] rounded-3xl border border-[#f0dfe3] p-6 sm:p-7 shadow-sm space-y-4">
                 <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#be7383]">
                   {t.todayReminderBadge}
@@ -280,7 +303,11 @@ export default function TodayPage() {
 
                 <div className="pt-4 border-t border-[#f0dfe3] flex items-center gap-2 text-[11px] text-[#9a8289]">
                   <Link2 size={14} className="shrink-0" />
-                  <span>{language === "my" ? "သင့်ကတ်များကို Cloud တွင် သိမ်းဆည်းထားပါသည်" : "Your cards are saved in the cloud"}</span>
+                  <span>
+                    {language === "my"
+                      ? "သင့်ကတ်များကို Cloud တွင် သိမ်းဆည်းထားပါသည်"
+                      : "Your cards are saved in the cloud"}
+                  </span>
                 </div>
               </aside>
             </FadeContent>
