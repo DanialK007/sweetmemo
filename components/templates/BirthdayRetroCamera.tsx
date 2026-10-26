@@ -120,7 +120,7 @@ export function BirthdayRetroCamera({
       bg: "#fff0f5",
       bgLight: "#ffe4e8",
       text: "#880e4f",
-      border: "#f06292",
+      border: "#e99bb5c7",
     },
     lavender: {
       primary: "#c77dff",
@@ -1072,32 +1072,30 @@ export function BirthdayRetroCamera({
 
             {/* ─── THE RETRO CAMERA ─── */}
             <div
-              className="cam shadow-2xl border-4 relative overflow-hidden"
+              className="cam shadow-2xl relative overflow-hidden"
               style={{
+                width: "310px",
                 padding: "14px 14px 16px",
                 borderRadius: "30px 30px 34px 34px",
                 background:
                   "radial-gradient(120% 60% at 20% 0px, rgba(255, 255, 255, 0.9), transparent 55%), " +
                   "linear-gradient(100deg, rgba(255, 255, 255, 0) 30%, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 60%), " +
-                  "linear-gradient(165deg, #f6f5f2, #dcdbd7 38%, #efeefb 58%, #c8c7c3)",
+                  "linear-gradient(165deg, #f6f5f2, #dcdbd7 38%, #efeee9 58%, #c8c7c3)",
                 boxShadow:
                   "inset 0 2px 1px #fff, " +
-                  "inset 0 -4px 8px rgba(0, 0, 0, 0.16), " +
-                  "inset 0 0 0 1px rgba(0, 0, 0, 0.08), " +
+                  "inset 0 -4px 8px rgba(0,0,0,0.16), " +
+                  "inset 0 0 0 1px rgba(0,0,0,0.08), " +
                   "0 2px 0 #b6b5b1, " +
-                  "0 26px 34px -18px rgba(40, 30, 40, 0.55)",
-                borderColor:
-                  theme === "gold"
-                    ? "#e0d0b0"
-                    : theme === "lavender"
-                      ? "#d8c4e0"
-                      : "#e2dcdc",
+                  "0 26px 34px -18px rgba(40,30,40,0.55)",
               }}
             >
               {/* Top Bar */}
-              <div className="cam-top flex items-center justify-between" style={{ height: "22px", margin: "0 4px 8px" }}>
+              <div
+                className="cam-top flex items-center justify-between"
+                style={{ height: "22px", margin: "0 4px 8px" }}
+              >
                 <span className="speaker flex gap-0.5">
-                  {Array.from({ length: 8 }).map((_, i) => (
+                  {Array.from({ length: 13 }).map((_, i) => (
                     <i
                       key={i}
                       className="w-1 h-1 rounded-full bg-gray-300 block"
@@ -1111,7 +1109,15 @@ export function BirthdayRetroCamera({
               </div>
 
               {/* Mid Section: Screen Bezel + Side Controls */}
-              <div className="cam-mid" style={{ display: "grid", gridTemplateColumns: "1fr 40px", gap: "10px", alignItems: "start" }}>
+              <div
+                className="cam-mid"
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 40px",
+                  gap: "10px",
+                  alignItems: "start",
+                }}
+              >
                 {/* Bezel & LCD Screen */}
                 <div
                   className="bezel flex-1 rounded-[26px] p-2 shadow-inner border-2"
@@ -1343,13 +1349,56 @@ export function BirthdayRetroCamera({
                 </div>
 
                 {/* Camera Right Side Controls */}
-                <div className="side flex flex-col items-center gap-2 text-gray-400 select-none py-2">
-                  <div className="rocker flex flex-col items-center text-[8px] font-bold bg-gray-200 rounded-full px-1 py-1 shadow-2xs">
+                <div
+                  className="side flex flex-col items-center select-none"
+                  style={{
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: "12px",
+                    width: "40px",
+                    paddingTop: "4px",
+                  }}
+                >
+                  <div
+                    className="rocker flex flex-col items-center font-bold"
+                    style={{
+                      flexDirection: "column",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      width: "30px",
+                      height: "62px",
+                      padding: "6px 0",
+                      borderRadius: "15px",
+                      background: "linear-gradient(90deg, #c4c3bf, #f4f3f0 45%, #bdbdb8)",
+                      boxShadow: "inset 0 1px 1px #fff, 0 2px 3px rgba(0,0,0,0.25)",
+                      fontSize: "10px",
+                      fontWeight: "bold",
+                      color: "#7d7c78",
+                    }}
+                  >
                     <span>T</span>
                     <span>W</span>
                   </div>
-                  <span className="pill w-1.5 h-3 bg-gray-300 rounded-full" />
-                  <span className="pill w-1.5 h-3 bg-gray-300 rounded-full" />
+                  <span
+                    className="pill"
+                    style={{
+                      width: "26px",
+                      height: "14px",
+                      borderRadius: "7px",
+                      background: "linear-gradient(#f2f1ee, #c9c8c4)",
+                      boxShadow: "inset 0 1px 0 #fff, 0 1px 2px rgba(0,0,0,0.3)",
+                    }}
+                  />
+                  <span
+                    className="pill"
+                    style={{
+                      width: "26px",
+                      height: "14px",
+                      borderRadius: "7px",
+                      background: "linear-gradient(#f2f1ee, #c9c8c4)",
+                      boxShadow: "inset 0 1px 0 #fff, 0 1px 2px rgba(0,0,0,0.3)",
+                    }}
+                  />
                   <span className="playbtn text-[10px] text-gray-500">▶</span>
                   <span className="minilabel text-[7px] font-bold tracking-tighter">
                     PLAY
@@ -1358,59 +1407,116 @@ export function BirthdayRetroCamera({
               </div>
 
               {/* Camera Bottom Controls: Jog-Dial Pad */}
-              <div className="cam-bot" style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", alignItems: "center", marginTop: "14px" }}>
+              <div
+                className="cam-bot"
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr auto 1fr",
+                  alignItems: "center",
+                  marginTop: "14px",
+                }}
+              >
                 <div className="smallbtns flex flex-col text-[7px] font-bold text-gray-400 gap-1 select-none">
                   <span>MENU</span>
                   <span>DISP</span>
                 </div>
 
                 {/* D-Pad */}
-                <div className="pad w-22 h-22 rounded-full bg-gradient-to-b from-[#e8e4e4] to-[#fcfbfb] p-1.5 shadow-md border border-gray-300 flex items-center justify-center relative">
-                  <div className="w-full h-full rounded-full border border-gray-300 flex items-center justify-center text-[8px] font-bold text-gray-500 select-none relative">
-                    <span className="dot u absolute top-1 w-1.5 h-1.5 rounded-full bg-gray-300" />
-                    <span className="dot d absolute bottom-1 w-1.5 h-1.5 rounded-full bg-gray-300" />
+                <div
+                  className="pad relative"
+                  style={{
+                    width: "128px",
+                    height: "128px",
+                    borderRadius: "50%",
+                    background:
+                      "radial-gradient(circle, transparent 36%, rgba(0,0,0,0.08) 37%, transparent 39%), " +
+                      "conic-gradient(#e9e9e7, #b7b6b2, #f5f5f3, #a9a8a4, #e6e6e7, #bdbdb8, #f2f2f0, #ada8a8, #e9e9e7)",
+                    boxShadow:
+                      "inset 0 2px 2px rgba(255,255,255,0.9), " +
+                      "inset 0 -3px 5px rgba(0,0,0,0.22), " +
+                      "0 3px 5px rgba(0,0,0,0.25)",
+                  }}
+                >
+                  {/* Center OK Button */}
+                  <button
+                    type="button"
+                    onClick={triggerReleaseBalloons}
+                    className="ok absolute flex items-center justify-center font-bold cursor-pointer active:scale-95 transition-all"
+                    style={{
+                      top: "50%",
+                      left: "50%",
+                      transform: "translate(-50%, -50%)",
+                      width: "52px",
+                      height: "52px",
+                      borderRadius: "50%",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      background: "radial-gradient(circle at 40% 30%, #fff, #d8d7d3 60%, #b5b4b0)",
+                      boxShadow: "inset 0 -2px 3px rgba(0,0,0,0.2), 0 2px 3px rgba(0,0,0,0.3)",
+                      fontWeight: "bold",
+                      fontSize: "12px",
+                      border: "1px solid #8a8985",
+                      color: colors.accent,
+                    }}
+                    aria-label="OK"
+                  >
+                    OK
+                  </button>
 
-                    {/* Prev Button */}
-                    <button
-                      type="button"
-                      onClick={prevPhoto}
-                      className="arr prev absolute left-1 w-6 h-6 flex items-center justify-center cursor-pointer"
-                      style={{ color: colors.accent }}
-                      aria-label="Previous photo"
-                    >
-                      ◀
-                    </button>
+                  {/* Prev Button */}
+                  <button
+                    type="button"
+                    onClick={prevPhoto}
+                    className="arr prev absolute text-base w-6 h-6 flex items-center justify-center cursor-pointer"
+                    style={{ left: "10px", top: "50%", transform: "translateY(-50%)", color: colors.accent }}
+                    aria-label="Previous photo"
+                  >
+                    ◀
+                  </button>
 
-                    {/* Center OK Button */}
-                    <button
-                      type="button"
-                      onClick={triggerReleaseBalloons}
-                      className="ok w-9 h-9 rounded-full bg-white shadow-inner border flex items-center justify-center text-[9px] font-extrabold active:scale-95 transition-all cursor-pointer"
-                      style={{
-                        color: colors.accent,
-                        borderColor: colors.border,
-                      }}
-                    >
-                      OK
-                    </button>
-
-                    {/* Next Button */}
-                    <button
-                      type="button"
-                      onClick={nextPhoto}
-                      className="arr next absolute right-1 w-6 h-6 flex items-center justify-center cursor-pointer"
-                      style={{ color: colors.accent }}
-                      aria-label="Next photo"
-                    >
-                      ▶
-                    </button>
-                  </div>
+                  {/* Next Button */}
+                  <button
+                    type="button"
+                    onClick={nextPhoto}
+                    className="arr next absolute text-base w-6 h-6 flex items-center justify-center cursor-pointer"
+                    style={{ right: "10px", top: "50%", transform: "translateY(-50%)", color: colors.accent }}
+                    aria-label="Next photo"
+                  >
+                    ▶
+                  </button>
                 </div>
 
                 <div className="rightbits select-none">
                   <span className="strap w-2 h-4 rounded-full bg-gray-300 block shadow-xs" />
                 </div>
               </div>
+
+              {/* Decorative Gems */}
+              <span
+                className="gem left absolute"
+                style={{
+                  zIndex: 3,
+                  width: "18px",
+                  rotate: "-15deg",
+                  filter: "drop-shadow(0 1px 1px rgba(0, 0, 0, 0.25))",
+                  pointerEvents: "none",
+                  left: "10px",
+                  top: "50%",
+                }}
+              />
+              <span
+                className="gem right absolute"
+                style={{
+                  zIndex: 3,
+                  width: "18px",
+                  rotate: "15deg",
+                  filter: "drop-shadow(0 1px 1px rgba(0, 0, 0, 0.25))",
+                  pointerEvents: "none",
+                  right: "10px",
+                  top: "50%",
+                }}
+              />
             </div>
           </div>
         </ZoomIn>
