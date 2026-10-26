@@ -2,133 +2,76 @@ import {
   collection,
   doc,
   getDoc,
-  getDocs,
   setDoc,
-  updateDoc,
+  serverTimestamp,
   query,
   where,
-  orderBy,
-  serverTimestamp,
-  Timestamp,
+  getDocs,
 } from "firebase/firestore";
 import { db } from "./firebase";
-import type { Order, OrderStatus } from "@/types/order";
-import type { PublicCardPage, CardData } from "@/types/card";
 
-// ==========================================
-// 1. User Profiles
-// ==========================================
-
-export async function syncUserProfile(user: {
-  uid: string;
-  displayName?: string | null;
-  email?: string | null;
-  photoURL?: string | null;
-}) {
-  if (!user.uid) return;
-  const userRef = doc(db, "users", user.uid);
-  const snap = await getDoc(userRef);
-
-  if (!snap.exists()) {
-    await setDoc(userRef, {
-      uid: user.uid,
-      displayName: user.displayName || "User",
-      email: user.email || "",
-      photoURL: user.photoURL || null,
-      isAdmin: false,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-    });
-  } else {
-    await updateDoc(userRef, {
-      displayName: user.displayName || snap.data().displayName,
-      photoURL: user.photoURL || snap.data().photoURL,
-      updatedAt: serverTimestamp(),
-    });
-  }
+export interface PageData {
+  slug: string;
+  templateSlug: string;
+  recipientName: string;
+  senderName: string;
+  occasionDate: string | null;
+  message: string;
+  theme: string;
+  birthdayData?: any;
+  userId: string;
+  createdAt: any;
+  updatedAt?: any;
 }
 
-// ==========================================
-// 2. Orders & Payments
-// ==========================================
-
-export async function createOrder(data: {
-  userId: string;
-  templateSlug: string;
-  templateTitle?: string;
-  price: number;
-  paymentMethod: "kpay" | "wavepay";
-  paymentPhone: string;
-  cardData: CardData;
-}): Promise<string> {
-  const ordersRef = collection(db, "orders");
-  const newOrderDoc = doc(ordersRef);
-
-  const newOrder: Record<string, any> = {
-    id: newOrderDoc.id,
-    userId: data.userId,
-    templateSlug: data.templateSlug,
-    templateTitle: data.templateTitle || "",
-    status: "pending" as OrderStatus,
-    price: data.price,
-    paymentMethod: data.paymentMethod,
-    paymentPhone: data.paymentPhone,
-    screenshotURL: null,
-    cardData: data.cardData,
-    pageSlug: null,
-    adminNote: null,
+/**
+ * Save a page to Firestore (uses 'pages' collection to match existing data model)
+ */
+export async function savePageToFirestore(
+  userId: string,
+  pageData: Omit<PageData, "userId" | "createdAt" | "updatedAt">
+): Promise<string> {
+  const pageRef = doc(collection(db, "pages"));
+  const pageWithMeta: PageData = {
+    ...pageData,
+    userId,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   };
 
-  await setDoc(newOrderDoc, newOrder);
-  return newOrderDoc.id;
+  await setDoc(pageRef, pageWithMeta);
+  return pageRef.id;
 }
 
-export async function getOrder(orderId: string): Promise<Order | null> {
-  const orderRef = doc(db, "orders", orderId);
-  const snap = await getDoc(orderRef);
-  if (!snap.exists()) return null;
-  return { id: snap.id, ...snap.data() } as Order;
-}
+/**
+ * Fetch a page by slug from Firestore
+ */
+export async function getPageBySlug(slug: string): Promise<PageData | null> {
+  const pagesRef = collection(db, "pages");
+  const q = query(pagesRef, where("slug", "==", slug));
+  const querySnapshot = await getDocs(q);
 
-export async function getUserOrders(userId: string): Promise<Order[]> {
-  const ordersRef = collection(db, "orders");
-  const q = query(
-    ordersRef,
-    where("userId", "==", userId),
-    orderBy("createdAt", "desc")
-  );
-  const querySnap = await getDocs(q);
-  return querySnap.docs.map((docSnap) => ({
-    id: docSnap.id,
-    ...docSnap.data(),
-  })) as Order[];
-}
-
-export async function updateOrderPaymentProof(
-  orderId: string,
-  screenshotURL: string,
-  paymentPhone?: string
-) {
-  const orderRef = doc(db, "orders", orderId);
-  const updates: Record<string, any> = {
-    screenshotURL,
-    updatedAt: serverTimestamp(),
-  };
-  if (paymentPhone) {
-    updates.paymentPhone = paymentPhone;
+  if (querySnapshot.empty) {
+    return null;
   }
-  await updateDoc(orderRef, updates);
+
+  const doc = querySnapshot.docs[0];
+  return {
+    id: doc.id,
+    ...doc.data(),
+  } as PageData;
 }
 
-// ==========================================
-// 3. Public Card Pages
-// ==========================================
+/**
+ * Fetch all pages for a specific user
+ */
+export async function getUserPages(userId: string): Promise<PageData[]> {
+  const pagesRef = collection(db, "pages");
+  const q = query(pagesRef, where("userId", "==", userId));
+  const querySnapshot = await getDocs(q);
 
-export async function getPublicCard(slug: string): Promise<PublicCardPage | null> {
-  const pageRef = doc(db, "pages", slug);
-  const snap = await getDoc(pageRef);
-  if (!snap.exists()) return null;
-  return snap.data() as PublicCardPage;
+  return querySnapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  })) as PageData[];
 }

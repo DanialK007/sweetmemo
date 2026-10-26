@@ -141,3 +141,27 @@ html[lang="my"] label {
     scroll-behavior: auto;
   }
 }
+
+@keyframes balloonRise {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-110vh) rotate(15deg);
+    opacity: 0;
+  }
+}
+
+.animate-balloon-rise {
+  animation: balloonRise 3.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: translate(-50%, -50%) rotate(-4deg); }
+  50% { transform: translate(-50%, -50%) rotate(4deg); }
+}
+
+.animate-wiggle {
+  animation: wiggle 2s ease-in-out infinite;
+}

@@ -1,77 +1,4 @@
 rules_version = '2';
-
-// ===============================================================
-// Assumed Data Model
-// ===============================================================
-//
-// Collection: users
-// Document ID: {uid} (Firebase Auth UID)
-// Fields:
-//   - uid: string (required, 1..128 chars, immutable, matches auth.uid)
-//   - isAdmin: bool (required, false for standard users, prevents privilege escalation)
-//   - email: string (optional, valid email format, max 254 chars)
-//   - displayName: string (optional, max 100 chars)
-//   - photoURL: string (optional, valid URL, max 2048 chars)
-//   - phoneNumber: string (optional, max 30 chars)
-//   - createdAt: timestamp or ISO string (optional, immutable)
-//   - updatedAt: timestamp or ISO string (optional)
-//
-// Collection: orders
-// Document ID: {orderId}
-// Fields:
-//   - userId: string (required, 1..128 chars, matches auth.uid on user create, immutable for user)
-//   - status: string (required, enum: 'pending' | 'confirmed' | 'rejected' | 'expired')
-//   - price: number (required, positive number > 0)
-//   - orderId: string (optional, max 128 chars)
-//   - templateSlug: string (optional, max 100 chars)
-//   - pageSlug: string (optional, max 100 chars, set upon confirmation)
-//   - screenshotURL: string (optional, valid URL, max 2048 chars)
-//   - paymentPhone: string (optional, max 30 chars)
-//   - paymentMethod: string (optional, max 50 chars)
-//   - customerNotes: string (optional, max 1000 chars)
-//   - adminNote: string (optional, max 2000 chars, editable by admin only)
-//   - pageData: map (optional, custom message & keepsake inputs)
-//   - confirmedAt: timestamp or ISO string (optional, set by admin)
-//   - createdAt: timestamp or ISO string (optional, immutable)
-//   - updatedAt: timestamp or ISO string (optional)
-//
-// Collection: pages
-// Document ID: {slug}
-// Fields:
-//   - slug: string (required, 1..100 chars)
-//   - templateSlug: string (required, 1..100 chars)
-//   - recipientName: string (required, 1..100 chars)
-//   - senderName: string (required, 1..100 chars)
-//   - occasionDate: string or timestamp (optional, max 50 chars)
-//   - message: string (required, max 5000 chars)
-//   - theme: string (required, enum: 'rose' | 'lavender' | 'gold')
-//   - createdAt: timestamp or ISO string (optional)
-//   - updatedAt: timestamp or ISO string (optional)
-//   - userId: string (optional, max 128 chars)
-//   - orderId: string (optional, max 128 chars)
-//
-// Collection: admins
-// Document ID: {uid}
-// Fields:
-//   - role / email / permissions metadata (read-only for admins, writes disabled from client)
-//
-// Collection: templates
-// Document ID: {slug}
-// Fields:
-//   - slug: string (required, 1..100 chars)
-//   - title: string (required, 1..100 chars)
-//   - subtitle: string (optional, max 200 chars)
-//   - category: string (required, 1..50 chars)
-//   - theme: string (required, enum: 'rose' | 'lavender' | 'gold')
-//   - icon: string (required, enum: 'heart' | 'flower' | 'sparkles' | 'mail' | 'star' | 'ring')
-//   - price: number (required, >= 0)
-//   - description: string (optional, max 1000 chars)
-//   - isActive: bool (optional)
-//   - createdAt: timestamp or ISO string (optional)
-//   - updatedAt: timestamp or ISO string (optional)
-//
-// ===============================================================
-
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -154,28 +81,13 @@ service cloud.firestore {
     }
 
     function isValidPage(data) {
-      return data.keys().hasOnly([
-          'slug', 'templateSlug', 'recipientName', 'senderName',
-          'occasionDate', 'message', 'theme', 'createdAt', 'updatedAt',
-          'userId', 'orderId'
-        ]) &&
-        data.keys().hasAll([
-          'slug', 'templateSlug', 'recipientName', 'senderName',
-          'message', 'theme'
-        ]) &&
-        data.slug is string && data.slug.size() >= 1 && data.slug.size() <= 100 &&
+      // Simplified validation - check required fields exist
+      return data.slug is string && data.slug.size() >= 1 && data.slug.size() <= 100 &&
         data.templateSlug is string && data.templateSlug.size() >= 1 && data.templateSlug.size() <= 100 &&
         data.recipientName is string && data.recipientName.size() >= 1 && data.recipientName.size() <= 100 &&
         data.senderName is string && data.senderName.size() >= 1 && data.senderName.size() <= 100 &&
         data.message is string && data.message.size() <= 5000 &&
-        data.theme in ['rose', 'lavender', 'gold'] &&
-        (!('occasionDate' in data) || data.occasionDate == null ||
-          (data.occasionDate is string && data.occasionDate.size() <= 50) ||
-          data.occasionDate is timestamp) &&
-        (!('userId' in data) || (data.userId is string && data.userId.size() <= 128)) &&
-        (!('orderId' in data) || (data.orderId is string && data.orderId.size() <= 128)) &&
-        (!('createdAt' in data) || isValidDateOrTimestamp(data.createdAt)) &&
-        (!('updatedAt' in data) || isValidDateOrTimestamp(data.updatedAt));
+        data.theme in ['rose', 'lavender', 'gold'];
     }
 
     function isValidTemplate(data) {
@@ -289,10 +201,32 @@ service cloud.firestore {
       // Public read for all users and guests (for /p/[slug] keepsake viewing)
       allow read: if true;
 
-      // Only admin (or backend Admin SDK) can create, update, or delete
-      allow create: if isAdmin() && isValidPage(request.resource.data);
-      allow update: if isAdmin() && isValidPage(request.resource.data);
-      allow delete: if isAdmin();
+      // Authenticated users can create their own pages
+      allow create: if (
+        isAuthenticated() &&
+        request.resource.data.userId == request.auth.uid &&
+        isValidPage(request.resource.data)
+      ) || (
+        isAdmin() &&
+        isValidPage(request.resource.data)
+      );
+
+      // Users can update their own pages, admins can update any
+      allow update: if (
+        isAuthenticated() &&
+        resource.data.userId == request.auth.uid &&
+        request.resource.data.userId == resource.data.userId &&
+        isValidPage(request.resource.data)
+      ) || (
+        isAdmin() &&
+        isValidPage(request.resource.data)
+      );
+
+      // Users can delete their own pages, admins can delete any
+      allow delete: if (
+        isAuthenticated() &&
+        resource.data.userId == request.auth.uid
+      ) || isAdmin();
     }
 
     // ===============================================================

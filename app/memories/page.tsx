@@ -15,6 +15,8 @@ import {
 import { Footer } from "@/components/Footer";
 import FadeContent from "@/components/FadeContent";
 import { useLanguage } from "@/context/LanguageContext";
+import { useAuth } from "@/context/AuthContext";
+import { getUserPages } from "@/lib/firestore";
 
 interface SavedPage {
   slug: string;
@@ -29,19 +31,76 @@ interface SavedPage {
 
 export default function TodayPage() {
   const { t, language } = useLanguage();
+  const { user, loading } = useAuth();
   const [pages, setPages] = useState<SavedPage[]>([]);
   const [copied, setCopied] = useState("");
 
   useEffect(() => {
-    try {
-      const raw =
-        localStorage.getItem("sweetmemos-pages") ||
-        localStorage.getItem("sweetmoment-pages");
-      if (raw) setPages(JSON.parse(raw));
-    } catch {
-      // ignore
-    }
-  }, []);
+    const fetchCards = async () => {
+      if (!user) return;
+
+      try {
+        // Fetch from Firestore
+        const pages = await getUserPages(user.uid);
+        setPages(pages);
+      } catch (err) {
+        console.error("Error fetching pages:", err);
+        // Fallback to localStorage for backward compatibility
+        try {
+          const raw =
+            localStorage.getItem("sweetmemos-pages") ||
+            localStorage.getItem("sweetmoment-pages");
+          if (raw) setPages(JSON.parse(raw));
+        } catch {
+          // ignore
+        }
+      }
+    };
+
+    fetchCards();
+  }, [user]);
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="text-center">
+          <div className="w-12 h-12 rounded-2xl bg-[#fbe8ed] text-[#d92d5c] flex items-center justify-center mx-auto mb-4 animate-spin">
+            <span className="text-2xl">⏳</span>
+          </div>
+          <p className="text-sm text-[#8e7c81]">Loading your memories...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Redirect to sign in if not authenticated
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white p-4">
+        <div className="bg-white rounded-3xl border border-[#f4e6e9] p-8 text-center max-w-md w-full shadow-lg">
+          <div className="w-14 h-14 rounded-2xl bg-[#fbe8ed] text-[#d2355c] flex items-center justify-center mx-auto mb-4">
+            <Heart size={26} />
+          </div>
+          <h1 className="font-serif font-extrabold text-2xl text-[#512b38]">
+            {language === "my" ? "အကောင့်ဝင်ရန် လိုအပ်ပါသည်" : "Sign in required"}
+          </h1>
+          <p className="text-xs text-[#8e7c81] mt-2 mb-6 leading-relaxed">
+            {language === "my"
+              ? "သင့်ဖန်တီးထားသော ကတ်များကို ကြည့်ရှုရန် ဦးစွာ ဝင်ရောက်ပါ"
+              : "Please sign in to view your created cards."}
+          </p>
+          <Link
+            href="/signin"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#d92d5c] hover:bg-[#bf214c] text-white font-bold text-xs shadow-sm transition-all"
+          >
+            <span>{language === "my" ? "ဝင်ရောက်မည်" : "Sign in"}</span>
+            <ArrowRight size={14} />
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const copy = async (slug: string) => {
     const url = `${window.location.origin}/p/${slug}`;
@@ -202,7 +261,7 @@ export default function TodayPage() {
 
                 <div className="pt-4 border-t border-[#f0dfe3] flex items-center gap-2 text-[11px] text-[#9a8289]">
                   <Link2 size={14} className="shrink-0" />
-                  <span>{t.todayStorageNotice}</span>
+                  <span>{language === "my" ? "သင့်ကတ်များကို Cloud တွင် သိမ်းဆည်းထားပါသည်" : "Your cards are saved in the cloud"}</span>
                 </div>
               </aside>
             </FadeContent>

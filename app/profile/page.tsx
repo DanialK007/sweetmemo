@@ -19,6 +19,7 @@ import { Footer } from "@/components/Footer";
 import FadeContent from "@/components/FadeContent";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
+import { getUserPages } from "@/lib/firestore";
 
 interface SavedPage {
   slug: string;
@@ -42,15 +43,29 @@ export default function ProfilePage() {
   const [confirmSignOut, setConfirmSignOut] = useState(false);
 
   useEffect(() => {
-    try {
-      const raw =
-        localStorage.getItem("sweetmemos-pages") ||
-        localStorage.getItem("sweetmoment-pages");
-      if (raw) setPages(JSON.parse(raw));
-    } catch {
-      /* ignore */
-    }
-  }, []);
+    const fetchCards = async () => {
+      if (!user) return;
+
+      try {
+        // Fetch from Firestore
+        const pages = await getUserPages(user.uid);
+        setPages(pages);
+      } catch (err) {
+        console.error("Error fetching pages:", err);
+        // Fallback to localStorage for backward compatibility
+        try {
+          const raw =
+            localStorage.getItem("sweetmemos-pages") ||
+            localStorage.getItem("sweetmoment-pages");
+          if (raw) setPages(JSON.parse(raw));
+        } catch {
+          /* ignore */
+        }
+      }
+    };
+
+    fetchCards();
+  }, [user]);
 
   const copy = async (slug: string) => {
     const url = `${window.location.origin}/p/${slug}`;
@@ -76,8 +91,22 @@ export default function ProfilePage() {
       )
     : null;
 
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="text-center">
+          <div className="w-12 h-12 rounded-2xl bg-[#fbe8ed] text-[#d92d5c] flex items-center justify-center mx-auto mb-4 animate-spin">
+            <span className="text-2xl">⏳</span>
+          </div>
+          <p className="text-sm text-[#8e7c81]">Loading profile...</p>
+        </div>
+      </div>
+    );
+  }
+
   // Guest state
-  if (!loading && !user) {
+  if (!user) {
     return (
       <div className="min-h-screen flex flex-col bg-white">
         <main className="flex-1 max-w-6xl mx-auto px-4 sm:px-6 py-12 w-full">
@@ -132,8 +161,6 @@ export default function ProfilePage() {
       </div>
     );
   }
-
-  if (loading) return null;
 
   const recentPages = pages.slice(0, 3);
 
@@ -327,7 +354,7 @@ export default function ProfilePage() {
                 {pages.length > 3 && (
                   <div className="mt-4 pt-4 border-t border-[#f8ebed]">
                     <Link
-                      href="/today"
+                      href="/memories"
                       className="inline-flex items-center gap-1.5 text-xs font-bold text-[#c32c54] hover:underline"
                     >
                       {t.profileViewAll} ({pages.length})
@@ -355,7 +382,7 @@ export default function ProfilePage() {
                 </Link>
 
                 <Link
-                  href="/today"
+                  href="/memories"
                   className="group bg-white border border-[#f4e6e9] rounded-2xl p-5 shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5"
                 >
                   <BookmarkCheck size={20} className="mb-3 text-[#d92d5c]" />

@@ -15,6 +15,12 @@ import { IconFor } from "@/components/IconFor";
 import FadeContent from "@/components/FadeContent";
 import { templates, type TemplateIcon } from "@/lib/templates";
 import { useLanguage } from "@/context/LanguageContext";
+import { getPageBySlug } from "@/lib/firestore";
+import {
+  BirthdayRetroCamera,
+  defaultBirthdayData,
+  type BirthdayCardData,
+} from "@/components/templates/BirthdayRetroCamera";
 
 interface SavedPage {
   slug: string;
@@ -24,6 +30,7 @@ interface SavedPage {
   occasionDate: string | null;
   message: string;
   theme: string;
+  birthdayData?: BirthdayCardData;
   createdAt: string;
 }
 
@@ -34,21 +41,33 @@ export default function PublicPageClient({ slug }: { slug: string }) {
   const [copyMessage, setCopyMessage] = useState("");
 
   useEffect(() => {
-    try {
-      const raw =
-        localStorage.getItem("sweetmemos-pages") ||
-        localStorage.getItem("sweetmoment-pages");
-      if (raw) {
-        const pages: SavedPage[] = JSON.parse(raw);
-        const found = pages.find((p) => p.slug === slug);
-        if (found) {
-          setPage(found);
+    const fetchPage = async () => {
+      try {
+        // Try to fetch from Firestore first
+        const pageData = await getPageBySlug(slug);
+        if (pageData) {
+          setPage(pageData);
+        } else {
+          // Fallback to localStorage for backward compatibility
+          const raw =
+            localStorage.getItem("sweetmemos-pages") ||
+            localStorage.getItem("sweetmoment-pages");
+          if (raw) {
+            const pages: SavedPage[] = JSON.parse(raw);
+            const found = pages.find((p) => p.slug === slug);
+            if (found) {
+              setPage(found);
+            }
+          }
         }
+      } catch (err) {
+        console.error("Error fetching page:", err);
+      } finally {
+        setLoading(false);
       }
-    } catch {
-      // ignore
-    }
-    setLoading(false);
+    };
+
+    fetchPage();
   }, [slug]);
 
   const copyPageLink = async () => {
@@ -107,6 +126,18 @@ export default function PublicPageClient({ slug }: { slug: string }) {
   }
 
   const template = templates.find((item) => item.slug === page.templateSlug);
+
+  // If this is the interactive birthday card template
+  if (page.templateSlug === "soft-confetti" || page.birthdayData) {
+    const birthdayData: BirthdayCardData = page.birthdayData || {
+      ...defaultBirthdayData,
+      recipientName: page.recipientName,
+      senderName: page.senderName.startsWith("—") ? page.senderName : `— ${page.senderName}`,
+      occasionDate: page.occasionDate || defaultBirthdayData.occasionDate,
+      letterContent: page.message || defaultBirthdayData.letterContent,
+    };
+    return <BirthdayRetroCamera data={birthdayData} mode="public" theme={page.theme as "rose" | "lavender" | "gold"} />;
+  }
 
   const cardGradient =
     page.theme === "lavender"

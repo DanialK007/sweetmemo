@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -8,15 +9,21 @@ import {
   Smartphone,
   Share2,
   PenTool,
+  Maximize2,
+  X,
 } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { IconFor } from "@/components/IconFor";
 import FadeContent from "@/components/FadeContent";
 import type { Template } from "@/lib/templates";
 import { useLanguage } from "@/context/LanguageContext";
+import { BirthdayRetroCamera } from "@/components/templates/BirthdayRetroCamera";
+import { PhoneMockupCard } from "@/components/mockups/phone-mockup-card";
 
 export default function DesignClientView({ template }: { template: Template }) {
   const { t, language } = useLanguage();
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [selectedTheme, setSelectedTheme] = useState<"rose" | "lavender" | "gold">(template.theme || "gold");
 
   const phoneTheme =
     template.theme === "lavender"
@@ -64,47 +71,70 @@ export default function DesignClientView({ template }: { template: Template }) {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-start">
           {/* Phone Preview Column */}
           <div className="lg:col-span-5 flex flex-col items-center">
+            {/* Full Screen Action Button */}
+            {template.slug === "soft-confetti" && (
+              <div className="mb-3 w-full max-w-[320px] flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setIsFullscreen(true)}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white hover:bg-[#fff0f4] text-[#d92d5c] border border-[#f3ccd7] text-xs font-bold shadow-xs hover:shadow transition-all cursor-pointer"
+                >
+                  <Maximize2 size={13} />
+                  <span>{language === "my" ? "မျက်နှာပြင်ပြည့် ကြည့်ရှုရန်" : "Full Screen"}</span>
+                </button>
+              </div>
+            )}
+
             <FadeContent
               effect="mist"
               duration={1.6}
               ease="power2.out"
               trigger="mount"
             >
-              <div className="w-[300px] sm:w-[320px] h-[580px] bg-[#3b2a30] rounded-[42px] p-3 shadow-2xl border-4 border-[#503a42] relative flex flex-col">
-                {/* Notch */}
-                <div className="w-28 h-4.5 bg-[#251a1e] rounded-full mx-auto mb-2.5"></div>
+              <PhoneMockupCard
+                variant={
+                  template.theme === "lavender"
+                    ? "purple"
+                    : template.theme === "gold"
+                    ? "orange"
+                    : "cherry"
+                }
+                showDynamicIsland={true}
+              >
+                {template.slug === "soft-confetti" ? (
+                  <BirthdayRetroCamera mode="editor-preview" theme={selectedTheme} />
+                ) : (
+                  <div
+                    className={`min-h-full rounded-[32px] bg-gradient-to-b ${phoneTheme} p-6 flex flex-col items-center justify-center text-center relative overflow-hidden`}
+                  >
+                    <span className="text-[10px] font-extrabold tracking-widest text-[#be7383] uppercase mb-4">
+                      {t.designMadeForYou}
+                    </span>
 
-                {/* Inner Screen */}
-                <div
-                  className={`flex-1 rounded-[32px] bg-gradient-to-b ${phoneTheme} p-6 flex flex-col items-center justify-center text-center relative overflow-hidden shadow-inner`}
-                >
-                  <span className="text-[10px] font-extrabold tracking-widest text-[#be7383] uppercase mb-4">
-                    {t.designMadeForYou}
-                  </span>
+                    <div className="w-24 h-24 rounded-full bg-white/70 border border-[#f3dfe3] text-[#d94a70] flex items-center justify-center shadow-md mb-4">
+                      <IconFor icon={template.icon} size={42} />
+                    </div>
 
-                  <div className="w-24 h-24 rounded-full bg-white/70 border border-[#f3dfe3] text-[#d94a70] flex items-center justify-center shadow-md mb-4">
-                    <IconFor icon={template.icon} size={42} />
+                    <h2 className="font-serif font-bold text-2xl text-[#55313d] leading-snug">
+                      {template.title}
+                    </h2>
+
+                    <p className="text-xs text-[#8b737a] mt-2 leading-relaxed max-w-[200px]">
+                      {template.subtitle}
+                    </p>
+
+                    <div className="w-12 h-px bg-[#dfb7c0] my-4"></div>
+
+                    <p className="text-xs font-serif font-semibold text-[#6d4551]">
+                      {t.designWithLove}
+                    </p>
+
+                    <span className="mt-4 px-3 py-1 rounded-full bg-white/80 text-[#ba5870] text-[10px] font-bold shadow-xs">
+                      {getCategoryName()}
+                    </span>
                   </div>
-
-                  <h2 className="font-serif font-bold text-2xl text-[#55313d] leading-snug">
-                    {template.title}
-                  </h2>
-
-                  <p className="text-xs text-[#8b737a] mt-2 leading-relaxed max-w-[200px]">
-                    {template.subtitle}
-                  </p>
-
-                  <div className="w-12 h-px bg-[#dfb7c0] my-4"></div>
-
-                  <p className="text-xs font-serif font-semibold text-[#6d4551]">
-                    {t.designWithLove}
-                  </p>
-
-                  <span className="mt-4 px-3 py-1 rounded-full bg-white/80 text-[#ba5870] text-[10px] font-bold shadow-xs">
-                    {getCategoryName()}
-                  </span>
-                </div>
-              </div>
+                )}
+              </PhoneMockupCard>
 
               <p className="text-xs text-[#9b858b] text-center mt-4">
                 {t.designPreviewMockup}
@@ -178,25 +208,48 @@ export default function DesignClientView({ template }: { template: Template }) {
               </div>
 
               {/* Color Feeling */}
-              <div>
-                <span className="text-xs font-bold text-[#684a54] uppercase tracking-wider block mb-2">
-                  {t.designColorsIncluded}
-                </span>
-                <div className="flex gap-4 items-center">
-                  <div className="flex items-center gap-1.5 text-xs text-[#79666c]">
-                    <span className="w-5 h-5 rounded-full bg-[#d74b70] border-2 border-white shadow-xs"></span>
-                    <span>{t.designColorRose}</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 text-xs text-[#79666c]">
-                    <span className="w-5 h-5 rounded-full bg-[#9384bd] border-2 border-white shadow-xs"></span>
-                    <span>{t.designColorLavender}</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 text-xs text-[#79666c]">
-                    <span className="w-5 h-5 rounded-full bg-[#c6a151] border-2 border-white shadow-xs"></span>
-                    <span>{t.designColorGold}</span>
+              {template.slug === "soft-confetti" && (
+                <div>
+                  <span className="text-xs font-bold text-[#684a54] uppercase tracking-wider block mb-2">
+                    {t.designColorsIncluded}
+                  </span>
+                  <div className="flex gap-4 items-center">
+                    <button
+                      onClick={() => setSelectedTheme("rose")}
+                      className={`flex items-center gap-1.5 text-xs ${
+                        selectedTheme === "rose" ? "text-[#d74b70] font-bold" : "text-[#79666c]"
+                      }`}
+                    >
+                      <span className={`w-5 h-5 rounded-full bg-[#d74b70] border-2 shadow-xs ${
+                        selectedTheme === "rose" ? "border-[#d74b70] ring-2 ring-[#d74b70]/30" : "border-white"
+                      }`}></span>
+                      <span>{t.designColorRose}</span>
+                    </button>
+                    <button
+                      onClick={() => setSelectedTheme("lavender")}
+                      className={`flex items-center gap-1.5 text-xs ${
+                        selectedTheme === "lavender" ? "text-[#9384bd] font-bold" : "text-[#79666c]"
+                      }`}
+                    >
+                      <span className={`w-5 h-5 rounded-full bg-[#9384bd] border-2 shadow-xs ${
+                        selectedTheme === "lavender" ? "border-[#9384bd] ring-2 ring-[#9384bd]/30" : "border-white"
+                      }`}></span>
+                      <span>{t.designColorLavender}</span>
+                    </button>
+                    <button
+                      onClick={() => setSelectedTheme("gold")}
+                      className={`flex items-center gap-1.5 text-xs ${
+                        selectedTheme === "gold" ? "text-[#c6a151] font-bold" : "text-[#79666c]"
+                      }`}
+                    >
+                      <span className={`w-5 h-5 rounded-full bg-[#c6a151] border-2 shadow-xs ${
+                        selectedTheme === "gold" ? "border-[#c6a151] ring-2 ring-[#c6a151]/30" : "border-white"
+                      }`}></span>
+                      <span>{t.designColorGold}</span>
+                    </button>
                   </div>
                 </div>
-              </div>
+              )}
 
               {/* CTA Button */}
               <div className="pt-2">
@@ -215,6 +268,46 @@ export default function DesignClientView({ template }: { template: Template }) {
           </div>
         </div>
       </main>
+
+      {/* Fullscreen Interactive Modal */}
+      {isFullscreen && (
+        <div
+          data-lenis-prevent
+          data-lenis-prevent-wheel
+          data-lenis-prevent-touch
+          onWheel={(e) => e.stopPropagation()}
+          className="fixed inset-0 z-[9999] bg-black/75 backdrop-blur-md flex flex-col items-center justify-center p-2 sm:p-4 animate-in fade-in duration-200"
+        >
+          {/* Top Bar with Close button */}
+          <div className="w-full max-w-lg flex items-center justify-between pb-3 px-2 text-white">
+            <span className="text-xs font-bold tracking-wider uppercase opacity-85">
+              {language === "my" ? "မျက်နှာပြင်ပြည့် အစမ်းကြည့်ရှုခြင်း" : "Full Screen Preview"}
+            </span>
+            <button
+              onClick={() => setIsFullscreen(false)}
+              className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition-all cursor-pointer"
+              title="Close / ပိတ်ရန်"
+            >
+              <X size={18} />
+            </button>
+          </div>
+
+          {/* Full Screen Viewport */}
+          <div
+            data-lenis-prevent
+            data-lenis-prevent-wheel
+            data-lenis-prevent-touch
+            onWheel={(e) => e.stopPropagation()}
+            className="w-full max-w-lg h-[90vh] bg-[#faf5ee] rounded-[36px] border-4 border-[#3c2a31] shadow-2xl overflow-y-auto overscroll-contain relative"
+          >
+            <BirthdayRetroCamera
+              mode="editor-preview"
+              theme={selectedTheme}
+              onBackClick={() => setIsFullscreen(false)}
+            />
+          </div>
+        </div>
+      )}
 
       <Footer />
     </div>

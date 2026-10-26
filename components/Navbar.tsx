@@ -33,7 +33,7 @@ export function Navbar() {
   const navItems: (GooeyNavItem & { route: string })[] = [
     { label: t.navHome, href: "/", route: "/" },
     { label: t.navTemplates, href: "/templates", route: "/templates" },
-    { label: t.navMoments, href: "/today", route: "/today" },
+    { label: t.navMoments, href: "/memories", route: "/memories" },
   ];
 
   // Find active index based on current path
@@ -72,9 +72,9 @@ export function Navbar() {
             {t.navTemplates}
           </Link>
           <Link
-            href="/today"
+            href="/memories"
             className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
-              pathname.startsWith("/today")
+              pathname.startsWith("/memories")
                 ? "bg-[#d92d5c] text-white"
                 : "text-[#725a60] hover:bg-[#f9e6ea]"
             }`}
@@ -212,7 +212,7 @@ export function Navbar() {
                     </Link>
 
                     <Link
-                      href="/today"
+                      href="/memories"
                       onClick={() => setMenuOpen(false)}
                       className="flex items-center gap-2.5 px-4 py-2.5 text-[#573743] hover:bg-[#fff5f7] transition-colors"
                     >

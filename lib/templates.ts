@@ -41,7 +41,7 @@ export const templates: Template[] = [
     title: "Soft Confetti",
     subtitle: "Make their day feel extra.",
     category: "Birthday",
-    theme: "lavender",
+    theme: "gold",
     icon: "star",
     price: 5000,
   },

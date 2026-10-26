@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { LoaderCircle } from "lucide-react";
 import { templates } from "@/lib/templates";
 import EditorForm from "./EditorForm";
+import { BirthdayCardEditor } from "@/components/editor/BirthdayCardEditor";
 
 export function generateStaticParams() {
   return templates.map((t) => ({ slug: t.slug }));
@@ -13,6 +14,9 @@ async function EditorContent({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+  if (slug === "soft-confetti") {
+    return <BirthdayCardEditor slug={slug} />;
+  }
   return <EditorForm slug={slug} />;
 }
 

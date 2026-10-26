@@ -23,7 +23,7 @@ export default function SignInClient() {
   const { t } = useLanguage();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectUrl = searchParams.get("redirect") || "/today";
+  const redirectUrl = searchParams.get("redirect") || "/memories";
 
   const [signingIn, setSigningIn] = useState(false);
   const [error, setError] = useState<string | null>(null);

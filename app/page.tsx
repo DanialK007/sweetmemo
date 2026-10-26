@@ -105,7 +105,7 @@ export default function Home() {
                   </Link>
 
                   <Link
-                    href="/today"
+                    href="/memories"
                     className="inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-full bg-white hover:bg-[#fbf4f6] text-[#5a3741] font-bold text-sm border border-[#f0dce1] shadow-xs transition-all duration-200 hover:-translate-y-0.5"
                   >
                     <span>{t.heroYourMoments}</span>
