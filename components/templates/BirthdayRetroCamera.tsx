@@ -381,6 +381,22 @@ export function BirthdayRetroCamera({
             transform: translateY(-12px) rotate(var(--rotate, 0deg));
           }
         }
+        @keyframes stickerRotate {
+          0%, 100% {
+            transform: translateY(0) rotate(var(--rotate, 0deg));
+          }
+          50% {
+            transform: translateY(-8px) rotate(calc(var(--rotate, 0deg) + 4deg));
+          }
+        }
+        @keyframes stickerSqueeze {
+          0%, 100% {
+            transform: translateY(0) scaleY(1) rotate(var(--rotate, 0deg));
+          }
+          50% {
+            transform: translateY(-10px) scaleY(0.96) rotate(var(--rotate, 0deg));
+          }
+        }
       `}</style>
 
       {/* Floating Flying Balloons Animation Layer - strictly contained inside card */}
@@ -990,7 +1006,7 @@ export function BirthdayRetroCamera({
             <img
               src="/img/bd2.png"
               alt="confetti"
-              style={{ transform: "rotate(8deg)", animation: "stickerFloat 3.5s ease-in-out infinite", "--rotate": "8deg" } as React.CSSProperties}
+              style={{ transform: "rotate(8deg)", animation: "stickerRotate 3.5s ease-in-out infinite", "--rotate": "8deg" } as React.CSSProperties}
               className="absolute -right-16 top-2 h-28 object-contain select-none filter drop-shadow-md z-10 pointer-events-none"
             />
           </div>
@@ -1059,14 +1075,14 @@ export function BirthdayRetroCamera({
             <img
               src="/img/bd3.png"
               alt="confetti"
-              style={{ transform: "rotate(-8deg)", animation: "stickerFloat 4s ease-in-out infinite", "--rotate": "-8deg" } as React.CSSProperties}
+              style={{ transform: "rotate(-8deg)", animation: "stickerSqueeze 4s ease-in-out infinite", "--rotate": "-8deg" } as React.CSSProperties}
               className="absolute -top-7 -left-3 w-16 h-16 object-contain select-none z-10 filter drop-shadow-xs pointer-events-none"
             />
             {/* Sunglasses Kitten */}
             <img
               src="/img/bd4.png"
               alt="confetti"
-              style={{ transform: "rotate(-6deg)", animation: "stickerFloat 3.2s ease-in-out infinite", "--rotate": "-6deg" } as React.CSSProperties}
+              style={{ transform: "rotate(-6deg)", animation: "stickerRotate 3.2s ease-in-out infinite", "--rotate": "-6deg" } as React.CSSProperties}
               className="absolute -bottom-2 -left-5 w-16 h-16 object-contain select-none z-30 filter drop-shadow-xs pointer-events-none"
             />
 
@@ -1185,7 +1201,7 @@ export function BirthdayRetroCamera({
                                 onClick={() => popBalloon(b)}
                                 className="block transform cursor-pointer transition-transform mt-12 hover:scale-110 active:scale-90"
                                 style={{
-                                  animation: `camBalloonBob 3.6s ease-in-out infinite ${0.5 + bIdx * 0.35}s`,
+                                  animation: `camBalloonBob 3.2s ease-in-out infinite ${0.5 + bIdx * 0.35}s`,
                                 }}
                                 aria-label="Pop balloon"
                               >
@@ -1656,7 +1672,7 @@ export function BirthdayRetroCamera({
             <img
               src="/img/bd5.png"
               alt="confetti"
-              style={{ transform: "rotate(9deg)", animation: "stickerFloat 3.8s ease-in-out infinite", "--rotate": "9deg" } as React.CSSProperties}
+              style={{ transform: "rotate(9deg)", animation: "stickerSqueeze 3.8s ease-in-out infinite", "--rotate": "9deg" } as React.CSSProperties}
               className="ps absolute -right-3 -top-6 w-20 h-20 object-contain select-none z-20 filter drop-shadow-xs pointer-events-none"
             />
 
