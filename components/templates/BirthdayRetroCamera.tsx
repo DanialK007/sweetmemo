@@ -394,7 +394,7 @@ export function BirthdayRetroCamera({
             transform: translateY(0) scaleY(1) rotate(var(--rotate, 0deg));
           }
           50% {
-            transform: translateY(-10px) scaleY(0.96) rotate(var(--rotate, 0deg));
+            transform: translateY(8px) scaleY(0.9) rotate(var(--rotate, 0deg));
           }
         }
       `}</style>
@@ -569,10 +569,10 @@ export function BirthdayRetroCamera({
       )}
 
       {/* ─── HERO HEADER ─── */}
-      <header className="hero flex flex-col items-center pt-12 px-4 text-center max-w-xl mx-auto relative">
+      <header className="hero flex flex-col items-center pt-16 px-4 text-center max-w-xl mx-auto relative">
         {/* Date Tape */}
         <FadeIn delay={0.05}>
-          <p className="datetape inline-block px-5 py-1 text-xs font-extrabold tracking-widest text-[#7a4652] bg-white/70 backdrop-blur-xs border-x-2 border-dashed border-[#e8bac5] shadow-2xs rounded-xs uppercase mb-3">
+          <p className="datetape inline-block px-5 py-1 text-xs font-extrabold tracking-widest text-[#7a4652] bg-white/70 backdrop-blur-xs border-x-2 border-dashed border-[#e8bac5] shadow-2xs rounded-xs uppercase mb-4">
             {data.occasionDate}
           </p>
         </FadeIn>
@@ -580,7 +580,7 @@ export function BirthdayRetroCamera({
         {/* ─── RANSOM CUTOUT "HAPPY BIRTHDAY" LETTERS ─── */}
         <ZoomIn delay={0.12} duration={0.65}>
           <h1
-            className="ransom relative scale-80 flex flex-col items-center gap-2 select-none my-2"
+            className="ransom relative scale-80 flex flex-col items-center gap-3 select-none my-4"
             aria-label="Happy Birthday"
           >
             {/* Party Kitten Sticker Left */}
@@ -593,7 +593,7 @@ export function BirthdayRetroCamera({
 
             {/* Row 1: H A P P Y + Star */}
             <span
-              className="row flex items-center justify-center gap-1 sm:gap-1.5"
+              className="row flex items-center justify-center gap-1.5 sm:gap-2"
               aria-hidden="true"
             >
               {/* H */}
@@ -736,7 +736,7 @@ export function BirthdayRetroCamera({
 
             {/* Row 2: B I R T H D A Y */}
             <span
-              className="row flex items-center justify-center gap-0.5 sm:gap-1"
+              className="row flex items-center justify-center gap-1 sm:gap-1.5"
               aria-hidden="true"
             >
               {/* B */}
@@ -943,7 +943,7 @@ export function BirthdayRetroCamera({
 
         {/* ─── NAME WRAP: 3D VINYL NAME + AGE FOIL BALLOON + CAT STICKERS ─── */}
         <PopUp delay={0.22} duration={0.6}>
-          <div className="namewrap flex items-center justify-center gap-3 relative my-3 w-full">
+          <div className="namewrap flex items-center justify-center gap-4 relative my-5 w-full">
             {/* 3D Vinyl Name (Thick puffy sticker effect) */}
             <div className="vinyl floaty relative select-none">
               <span
@@ -1015,7 +1015,7 @@ export function BirthdayRetroCamera({
         {/* Subtitle */}
         <FadeIn delay={0.3}>
           <p
-            className="line text-sm font-semibold mt-1 font-['Burmese_Handwriting']"
+            className="line text-sm font-semibold mt-2 font-['Burmese_Handwriting']"
             style={{ color: colors.text }}
           >
             {data.subtitle}
@@ -1024,7 +1024,7 @@ export function BirthdayRetroCamera({
 
         {/* Sticky Note */}
         <SlideLeft delay={0.38}>
-          <div className="sticky relative transform -rotate-2 mt-3 mb-2">
+          <div className="sticky max-w-40 relative transform -rotate-2 mt-4 mb-3">
             <p
               className="px-5 py-1.5 rounded-xs font-serif italic font-extrabold text-sm shadow-2xs tracking-wide"
               style={{
@@ -1040,14 +1040,14 @@ export function BirthdayRetroCamera({
 
         {/* Hint */}
         <FadeIn delay={0.46}>
-          <p className="hint text-xs text-[#8f6e77] mt-1 font-medium font-['Burmese_Handwriting']">
+          <p className="hint text-xs text-[#8f6e77] mt-2 font-medium font-['Burmese_Handwriting']">
             {data.cameraHint}
           </p>
         </FadeIn>
       </header>
 
       {/* ─── RETRO CAMERA & BALLOON POPPING ZONE ─── */}
-      <section className="px-4 mt-6 max-w-xl mx-auto flex flex-col items-center">
+      <section className="px-4 mt-10 max-w-xl mx-auto flex flex-col items-center">
         <FadeIn delay={0.05}>
           <p
             className="kicker font-serif italic font-bold text-xs mt-1"
@@ -1062,7 +1062,7 @@ export function BirthdayRetroCamera({
             {data.cameraSectionTitle}
           </h2>
           <p
-            className="sub text-xs text-center max-w-xs mt-1 mb-4 font-['Burmese_Handwriting']"
+            className="sub text-xs text-center max-w-xs mt-2 mb-6 font-['Burmese_Handwriting']"
             style={{ color: colors.muted }}
           >
             {data.cameraSectionDesc}
@@ -1070,20 +1070,20 @@ export function BirthdayRetroCamera({
         </FadeIn>
 
         <ZoomIn delay={0.12} duration={0.7}>
-          <div className="camzone relative w-full max-w-[325px]">
+          <div className="camzone relative w-full max-w-[325px] mb-6">
             {/* Peeking Kitten */}
-            <img
+            {/* <img
               src="/img/bd3.png"
               alt="confetti"
               style={{ transform: "rotate(-8deg)", animation: "stickerSqueeze 4s ease-in-out infinite", "--rotate": "-8deg" } as React.CSSProperties}
               className="absolute -top-7 -left-3 w-16 h-16 object-contain select-none z-10 filter drop-shadow-xs pointer-events-none"
-            />
+            /> */}
             {/* Sunglasses Kitten */}
             <img
               src="/img/bd4.png"
               alt="confetti"
               style={{ transform: "rotate(-6deg)", animation: "stickerRotate 3.2s ease-in-out infinite", "--rotate": "-6deg" } as React.CSSProperties}
-              className="absolute -bottom-2 -left-5 w-16 h-16 object-contain select-none z-30 filter drop-shadow-xs pointer-events-none"
+              className="absolute -bottom-12 -left-12 w-16 h-28 object-contain select-none z-30 filter drop-shadow-xs pointer-events-none"
             />
 
             {/* ─── THE RETRO CAMERA ─── */}
@@ -1578,9 +1578,9 @@ export function BirthdayRetroCamera({
         </ZoomIn>
 
         {/* ─── MINI POLAROID PRINTS GALLERY ─── */}
-        <div className="w-full pt-6 flex flex-col items-center">
+        <div className="w-full pt-10 flex flex-col items-center">
           <FadeIn delay={0.05}>
-            <div className="capline-host text-center mb-2">
+            <div className="capline-host text-center mb-4">
               <p
                 className="capline font-serif font-extrabold text-sm"
                 style={{ color: colors.text }}
@@ -1594,7 +1594,7 @@ export function BirthdayRetroCamera({
           </FadeIn>
 
           <div
-            className="prints grid grid-cols-3 sm:grid-cols-6 gap-2 w-full max-w-[330px] pt-1"
+            className="prints grid grid-cols-3 sm:grid-cols-6 gap-3 w-full max-w-[330px] pt-2"
             role="group"
             aria-label="Polaroid Prints"
           >
@@ -1654,12 +1654,12 @@ export function BirthdayRetroCamera({
 
       {/* ─── A LITTLE NOTE: LINED PAPER NOTEBOOK LETTER ─── */}
       <section
-        className="px-4 mt-8 max-w-xl mx-auto flex flex-col items-center"
+        className="px-4 mt-12 max-w-xl mx-auto flex flex-col items-center"
         aria-labelledby="pop-note-title"
       >
         <FadeIn delay={0.05}>
           <p
-            className="kicker font-serif italic font-bold text-sm mb-1"
+            className="kicker font-serif italic font-bold text-sm mb-2"
             style={{ color: colors.accent }}
           >
             a little note
@@ -1667,12 +1667,12 @@ export function BirthdayRetroCamera({
         </FadeIn>
 
         <SlideUp delay={0.12} duration={0.65}>
-          <div className="letterwrap relative w-full max-w-[330px]">
+          <div className="letterwrap relative w-full max-w-[330px] mb-6">
             {/* Bunny Sticker */}
             <img
               src="/img/bd5.png"
               alt="confetti"
-              style={{ transform: "rotate(9deg)", animation: "stickerSqueeze 3.8s ease-in-out infinite", "--rotate": "9deg" } as React.CSSProperties}
+              style={{ transform: "rotate(9deg)", animation: "stickerFloat 3.8s ease-in-out infinite", "--rotate": "9deg" } as React.CSSProperties}
               className="ps absolute -right-3 -top-6 w-20 h-20 object-contain select-none z-20 filter drop-shadow-xs pointer-events-none"
             />
 
@@ -1728,7 +1728,7 @@ export function BirthdayRetroCamera({
 
       {/* ─── RELEASE BALLOONS & CELEBRATION SECTION ─── */}
       <section
-        className="release px-4 mt-6 max-w-xl mx-auto flex flex-col items-center text-center space-y-3"
+        className="release px-4 mt-10 max-w-xl mx-auto flex flex-col items-center text-center space-y-4"
         aria-label="Release balloons"
       >
         <PopUp delay={0.05} duration={0.55}>
@@ -1756,8 +1756,14 @@ export function BirthdayRetroCamera({
             <img
               src="/img/bd6.png"
               alt="confetti"
-              style={{ transform: "rotate(-5deg)", animation: "stickerFloat 3.3s ease-in-out infinite", "--rotate": "-5deg" } as React.CSSProperties}
-              className="absolute -left-12 top-0 w-20 h-20 object-contain select-none z-20 filter drop-shadow-xs pointer-events-none"
+              style={{ transform: "rotate(-5deg)", animation: "stickerSqueeze 3.3s ease-in-out infinite", "--rotate": "-5deg" } as React.CSSProperties}
+              className="absolute -left-14 bottom-12 w-16 h-16 object-contain select-none z-20 filter drop-shadow-xs pointer-events-none"
+            />
+            <img
+              src="/img/bd3.png"
+              alt="confetti"
+              style={{ transform: "rotate(-5deg)", animation: "stickerRotate 3.3s ease-in-out infinite", "--rotate": "-5deg" } as React.CSSProperties}
+              className="absolute -right-14 top-8 w-20 h-28 object-contain select-none z-20 filter drop-shadow-xs pointer-events-none"
             />
             <b className="block font-extrabold text-3xl sm:text-4xl text-[#df2e62] tracking-wide select-none drop-shadow-2xs">
               {data.closingTitle}
