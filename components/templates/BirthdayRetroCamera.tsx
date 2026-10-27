@@ -342,7 +342,8 @@ export function BirthdayRetroCamera({
             opacity: 0;
           }
           100% {
-            transform: translate(-50%, -50%) scale(1) rotate(0deg);
+            margin-top: 28px;
+            transform: translate(-50%, -50%) scale(1.2) rotate(0deg);
             opacity: 1;
           }
         }
@@ -1176,7 +1177,7 @@ export function BirthdayRetroCamera({
                               style={{
                                 top: b.top,
                                 left: b.left,
-                                animation: `camBalloonFlyIn 1.2s ease-out ${bIdx * 0.32}s both`,
+                                animation: `camBalloonFlyIn 0.8s cubic-bezier(0.25, 1, 0.5, 1) ${bIdx * 0.32}s both`,
                               }}
                             >
                               <button
