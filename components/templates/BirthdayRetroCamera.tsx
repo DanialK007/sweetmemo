@@ -344,17 +344,15 @@ export function BirthdayRetroCamera({
           1% {
             opacity: 1;
           }
-          // 55% {
-          //   transform: translate(-50%, 30px) scale(0.96) rotate(3deg);
-          // }
-          // 80% {
-          //   transform: translate(-50%, -54%) scale(1.03) rotate(-2deg);
-          // }
+          55% {
+            transform: translate(-50%, 30px) scale(0.96) rotate(3deg);
+          }
+          80% {
+            transform: translate(-50%, -54%) scale(1.03) rotate(-2deg);
+          }
           100% {
             transform: translate(-50%, -50%) scale(1) rotate(0deg);
             opacity: 1;
-            scale: 1.2;
-            margin-top: 32px;
           }
         }
         @keyframes camBalloonBob {
@@ -370,15 +368,6 @@ export function BirthdayRetroCamera({
             transform: translate(-50%, -50%) scale(0.15) rotate(-22deg);
             opacity: 0;
           }
-        }
-        @keyframes stickerFloat {
-          0%, 100% {
-            transform: translateY(0) rotate(var(--rotate, 0deg));
-          }
-          50% {
-            transform: translateY(-12px) rotate(var(--rotate, 0deg));
-          }
-        }
           20% {
             transform: translate(-50%, -50%) scale(1.35) rotate(8deg);
             opacity: 1;
@@ -390,6 +379,14 @@ export function BirthdayRetroCamera({
           100% {
             transform: translate(-50%, -50%) scale(1.65) rotate(18deg);
             opacity: 0;
+          }
+        }
+        @keyframes stickerFloat {
+          0%, 100% {
+            transform: translateY(0) rotate(var(--rotate, 0deg));
+          }
+          50% {
+            transform: translateY(-12px) rotate(var(--rotate, 0deg));
           }
         }
       `}</style>
