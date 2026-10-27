@@ -341,19 +341,6 @@ export function BirthdayRetroCamera({
             transform: translate(-50%, 240px) scale(0.65) rotate(-5deg);
             opacity: 0;
           }
-          15% {
-            opacity: 1;
-            transform: translate(-50%, 180px) scale(0.75) rotate(-3deg);
-          }
-          40% {
-            transform: translate(-50%, 80px) scale(0.88) rotate(2deg);
-          }
-          65% {
-            transform: translate(-50%, 20px) scale(0.97) rotate(-1deg);
-          }
-          85% {
-            transform: translate(-50%, -10px) scale(1.02) rotate(0.5deg);
-          }
           100% {
             transform: translate(-50%, -50%) scale(1) rotate(0deg);
             opacity: 1;
@@ -1189,7 +1176,7 @@ export function BirthdayRetroCamera({
                               style={{
                                 top: b.top,
                                 left: b.left,
-                                animation: `camBalloonFlyIn 700ms ease-out ${bIdx * 0.32}s both`,
+                                animation: `camBalloonFlyIn 1.2s ease-out ${bIdx * 0.32}s both`,
                               }}
                             >
                               <button
