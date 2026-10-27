@@ -582,7 +582,7 @@ export function BirthdayRetroCamera({
             <img
               src="/img/bd1.png"
               alt="confetti"
-              style={{ transform: "rotate(-9deg)", animation: "float 3s ease-in-out infinite", "--rotate": "-9deg" }}
+              style={{ transform: "rotate(-9deg)", animation: "float 3s ease-in-out infinite", "--rotate": "-9deg" } as React.CSSProperties}
               className="absolute -left-14 -bottom-32 h-36 object-contain select-none filter drop-shadow-md z-10 pointer-events-none"
             />
 
@@ -1001,7 +1001,7 @@ export function BirthdayRetroCamera({
             <img
               src="/img/bd2.png"
               alt="confetti"
-              style={{ transform: "rotate(8deg)", animation: "float 3.5s ease-in-out infinite", "--rotate": "8deg" }}
+              style={{ transform: "rotate(8deg)", animation: "float 3.5s ease-in-out infinite", "--rotate": "8deg" } as React.CSSProperties}
               className="absolute -right-16 top-2 h-28 object-contain select-none filter drop-shadow-md z-10 pointer-events-none"
             />
           </div>
@@ -1070,14 +1070,14 @@ export function BirthdayRetroCamera({
             <img
               src="/img/bd3.png"
               alt="confetti"
-              style={{ transform: "rotate(-8deg)", animation: "float 4s ease-in-out infinite", "--rotate": "-8deg" }}
+              style={{ transform: "rotate(-8deg)", animation: "float 4s ease-in-out infinite", "--rotate": "-8deg" } as React.CSSProperties}
               className="absolute -top-7 -left-3 w-16 h-16 object-contain select-none z-10 filter drop-shadow-xs pointer-events-none"
             />
             {/* Sunglasses Kitten */}
             <img
               src="/img/bd4.png"
               alt="confetti"
-              style={{ transform: "rotate(-6deg)", animation: "float 3.2s ease-in-out infinite", "--rotate": "-6deg" }}
+              style={{ transform: "rotate(-6deg)", animation: "float 3.2s ease-in-out infinite", "--rotate": "-6deg" } as React.CSSProperties}
               className="absolute -bottom-2 -left-5 w-16 h-16 object-contain select-none z-30 filter drop-shadow-xs pointer-events-none"
             />
 
@@ -1667,7 +1667,7 @@ export function BirthdayRetroCamera({
             <img
               src="/img/bd5.png"
               alt="confetti"
-              style={{ transform: "rotate(9deg)", animation: "float 3.8s ease-in-out infinite", "--rotate": "9deg" }}
+              style={{ transform: "rotate(9deg)", animation: "float 3.8s ease-in-out infinite", "--rotate": "9deg" } as React.CSSProperties}
               className="ps absolute -right-3 -top-6 w-20 h-20 object-contain select-none z-20 filter drop-shadow-xs pointer-events-none"
             />
 
@@ -1751,7 +1751,7 @@ export function BirthdayRetroCamera({
             <img
               src="/img/bd6.png"
               alt="confetti"
-              style={{ transform: "rotate(-5deg)", animation: "float 3.3s ease-in-out infinite", "--rotate": "-5deg" }}
+              style={{ transform: "rotate(-5deg)", animation: "float 3.3s ease-in-out infinite", "--rotate": "-5deg" } as React.CSSProperties}
               className="absolute -left-12 top-0 w-20 h-20 object-contain select-none z-20 filter drop-shadow-xs pointer-events-none"
             />
             <b className="block font-extrabold text-3xl sm:text-4xl text-[#df2e62] tracking-wide select-none drop-shadow-2xs">
