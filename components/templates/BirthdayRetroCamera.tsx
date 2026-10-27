@@ -371,11 +371,14 @@ export function BirthdayRetroCamera({
             opacity: 0;
         }
         @keyframes float {
-          0%, 100% {
+          0% {
             transform: translateY(0) rotate(var(--rotate, 0deg));
           }
           50% {
-            transform: translateY(-12px) rotate(var(--rotate, 0deg));
+            transform: translateY(-20px) rotate(var(--rotate, 0deg));
+          }
+          100% {
+            transform: translateY(-40px) rotate(var(--rotate, 0deg));
           }
         }
           }
