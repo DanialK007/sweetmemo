@@ -341,7 +341,7 @@ export function BirthdayRetroCamera({
             transform: translate(-50%, 240px) scale(0.65) rotate(-5deg);
             opacity: 0;
           }
-          10% {
+          1% {
             opacity: 1;
           }
           // 55% {
@@ -353,6 +353,8 @@ export function BirthdayRetroCamera({
           100% {
             transform: translate(-50%, -50%) scale(1) rotate(0deg);
             opacity: 1;
+            scale: 1.2;
+            margin-top: 32px;
           }
         }
         @keyframes camBalloonBob {
@@ -360,13 +362,22 @@ export function BirthdayRetroCamera({
             transform: translateY(0) rotate(0deg);
           }
           50% {
-            transform: translateY(-6px) rotate(2.5deg);
+            transform: translateY(-8px) rotate(3.5deg);
           }
         }
         @keyframes popStarBurst {
           0% {
             transform: translate(-50%, -50%) scale(0.15) rotate(-22deg);
             opacity: 0;
+        }
+        @keyframes float {
+          0%, 100% {
+            transform: translateY(0) rotate(var(--rotate, 0deg));
+          }
+          50% {
+            transform: translateY(-12px) rotate(var(--rotate, 0deg));
+          }
+        }
           }
           20% {
             transform: translate(-50%, -50%) scale(1.35) rotate(8deg);
@@ -516,7 +527,7 @@ export function BirthdayRetroCamera({
 
       {/* Top Bar Navigation */}
       {mode !== "editor-preview" && (
-        <header className="max-w-md mx-auto pt-4 px-4 flex items-center justify-between">
+        <header className="max-w-xl mx-auto pt-4 px-4 flex items-center justify-between">
           {onBackClick ? (
             <button
               onClick={onBackClick}
@@ -553,7 +564,7 @@ export function BirthdayRetroCamera({
       )}
 
       {/* ─── HERO HEADER ─── */}
-      <header className="hero flex flex-col items-center pt-12 px-4 text-center max-w-md mx-auto relative">
+      <header className="hero flex flex-col items-center pt-12 px-4 text-center max-w-xl mx-auto relative">
         {/* Date Tape */}
         <FadeIn delay={0.05}>
           <p className="datetape inline-block px-5 py-1 text-xs font-extrabold tracking-widest text-[#7a4652] bg-white/70 backdrop-blur-xs border-x-2 border-dashed border-[#e8bac5] shadow-2xs rounded-xs uppercase mb-3">
@@ -571,7 +582,7 @@ export function BirthdayRetroCamera({
             <img
               src="/img/bd1.png"
               alt="confetti"
-              style={{ transform: "rotate(-9deg)" }}
+              style={{ transform: "rotate(-9deg)", animation: "float 3s ease-in-out infinite", "--rotate": "-9deg" }}
               className="absolute -left-14 -bottom-32 h-36 object-contain select-none filter drop-shadow-md z-10 pointer-events-none"
             />
 
@@ -990,7 +1001,7 @@ export function BirthdayRetroCamera({
             <img
               src="/img/bd2.png"
               alt="confetti"
-              style={{ transform: "rotate(8deg)" }}
+              style={{ transform: "rotate(8deg)", animation: "float 3.5s ease-in-out infinite", "--rotate": "8deg" }}
               className="absolute -right-16 top-2 h-28 object-contain select-none filter drop-shadow-md z-10 pointer-events-none"
             />
           </div>
@@ -1031,7 +1042,7 @@ export function BirthdayRetroCamera({
       </header>
 
       {/* ─── RETRO CAMERA & BALLOON POPPING ZONE ─── */}
-      <section className="px-4 mt-6 max-w-md mx-auto flex flex-col items-center">
+      <section className="px-4 mt-6 max-w-xl mx-auto flex flex-col items-center">
         <FadeIn delay={0.05}>
           <p
             className="kicker font-serif italic font-bold text-xs mt-1"
@@ -1059,14 +1070,14 @@ export function BirthdayRetroCamera({
             <img
               src="/img/bd3.png"
               alt="confetti"
-              style={{ transform: "rotate(-8deg)" }}
+              style={{ transform: "rotate(-8deg)", animation: "float 4s ease-in-out infinite", "--rotate": "-8deg" }}
               className="absolute -top-7 -left-3 w-16 h-16 object-contain select-none z-10 filter drop-shadow-xs pointer-events-none"
             />
             {/* Sunglasses Kitten */}
             <img
               src="/img/bd4.png"
               alt="confetti"
-              style={{ transform: "rotate(-6deg)" }}
+              style={{ transform: "rotate(-6deg)", animation: "float 3.2s ease-in-out infinite", "--rotate": "-6deg" }}
               className="absolute -bottom-2 -left-5 w-16 h-16 object-contain select-none z-30 filter drop-shadow-xs pointer-events-none"
             />
 
@@ -1177,7 +1188,7 @@ export function BirthdayRetroCamera({
                               style={{
                                 top: b.top,
                                 left: b.left,
-                                animation: `camBalloonFlyIn 2.2s ease-out ${bIdx * 0.32}s both`,
+                                animation: `camBalloonFlyIn 700ms ease-out ${bIdx * 0.32}s both`,
                               }}
                             >
                               <button
@@ -1185,7 +1196,7 @@ export function BirthdayRetroCamera({
                                 onClick={() => popBalloon(b)}
                                 className="block transform cursor-pointer transition-transform mt-12 hover:scale-110 active:scale-90"
                                 style={{
-                                  animation: `camBalloonBob 3.6s ease-in-out infinite ${2.2 + bIdx * 0.35}s`,
+                                  animation: `camBalloonBob 3.6s ease-in-out infinite ${0.5 + bIdx * 0.35}s`,
                                 }}
                                 aria-label="Pop balloon"
                               >
@@ -1360,7 +1371,7 @@ export function BirthdayRetroCamera({
                   }}
                 >
                   <div
-                    className="rocker flex flex-col items-center font-bold"
+                    className="rocker cursor-pointer active:scale-95 flex flex-col items-center font-bold"
                     style={{
                       flexDirection: "column",
                       justifyContent: "space-between",
@@ -1369,8 +1380,10 @@ export function BirthdayRetroCamera({
                       height: "54px",
                       padding: "5px 0",
                       borderRadius: "13px",
-                      background: "linear-gradient(90deg, #c4c3bf, #f4f3f0 45%, #bdbdb8)",
-                      boxShadow: "inset 0 1px 1px #fff, 0 2px 3px rgba(0,0,0,0.25)",
+                      background:
+                        "linear-gradient(90deg, #c4c3bf, #f4f3f0 45%, #bdbdb8)",
+                      boxShadow:
+                        "inset 0 1px 1px #fff, 0 2px 3px rgba(0,0,0,0.25)",
                       fontSize: "9px",
                       fontWeight: "bold",
                       color: "#7d7c78",
@@ -1380,23 +1393,25 @@ export function BirthdayRetroCamera({
                     <span>W</span>
                   </div>
                   <span
-                    className="pill"
+                    className="pill cursor-pointer active:scale-90"
                     style={{
                       width: "22px",
                       height: "12px",
                       borderRadius: "6px",
                       background: "linear-gradient(#f2f1ee, #c9c8c4)",
-                      boxShadow: "inset 0 1px 0 #fff, 0 1px 2px rgba(0,0,0,0.3)",
+                      boxShadow:
+                        "inset 0 1px 0 #fff, 0 1px 2px rgba(0,0,0,0.3)",
                     }}
                   />
                   <span
-                    className="pill"
+                    className="pill cursor-pointer active:scale-90"
                     style={{
                       width: "22px",
                       height: "12px",
                       borderRadius: "6px",
                       background: "linear-gradient(#f2f1ee, #c9c8c4)",
-                      boxShadow: "inset 0 1px 0 #fff, 0 1px 2px rgba(0,0,0,0.3)",
+                      boxShadow:
+                        "inset 0 1px 0 #fff, 0 1px 2px rgba(0,0,0,0.3)",
                     }}
                   />
                   <span className="playbtn text-[9px] text-gray-500">▶</span>
@@ -1422,21 +1437,77 @@ export function BirthdayRetroCamera({
                 </div>
 
                 {/* D-Pad */}
-                <div
-                  className="pad relative"
-                  style={{
-                    width: "110px",
-                    height: "110px",
-                    borderRadius: "50%",
-                    background:
-                      "radial-gradient(circle, transparent 36%, rgba(0,0,0,0.08) 37%, transparent 39%), " +
-                      "conic-gradient(#e9e9e7, #b7b6b2, #f5f5f3, #a9a8a4, #e6e6e7, #bdbdb8, #f2f2f0, #ada8a8, #e9e9e7)",
-                    boxShadow:
-                      "inset 0 2px 2px rgba(255,255,255,0.9), " +
-                      "inset 0 -3px 5px rgba(0,0,0,0.22), " +
-                      "0 3px 5px rgba(0,0,0,0.25)",
-                  }}
-                >
+                <div className="relative">
+                  <div
+                    className="pad relative active:scale-[0.98]"
+                    style={{
+                      width: "110px",
+                      height: "110px",
+                      borderRadius: "50%",
+                      background:
+                        "radial-gradient(circle, transparent 36%, rgba(0,0,0,0.08) 37%, transparent 39%), " +
+                        "conic-gradient(#e9e9e7, #b7b6b2, #f5f5f3, #a9a8a4, #e6e6e7, #bdbdb8, #f2f2f0, #ada8a8, #e9e9e7)",
+                      boxShadow:
+                        "inset 0 2px 2px rgba(255,255,255,0.9), " +
+                        "inset 0 -3px 5px rgba(0,0,0,0.22), " +
+                        "0 3px 5px rgba(0,0,0,0.25)",
+                    }}
+                  >
+                    <button
+                      className="absolute text-xl text-neutral-500/50 w-6 h-6 flex items-center justify-center cursor-pointer"
+                      style={{
+                        left: "50%",
+                        top: "6px",
+                        transform: "translateX(-50%)",
+                      }}
+                      aria-label="Previous photo"
+                    >
+                      •
+                    </button>
+                    <button
+                      className="absolute text-xl text-neutral-500/50 w-6 h-6 flex items-center justify-center cursor-pointer"
+                      style={{
+                        left: "50%",
+                        bottom: "6px",
+                        transform: "translateX(-50%)",
+                      }}
+                      aria-label="Previous photo"
+                    >
+                      •
+                    </button>
+                    
+                    {/* Prev Button */}
+                    <button
+                      type="button"
+                      onClick={prevPhoto}
+                      className="arr prev absolute text-base w-6 h-6 flex items-center justify-center cursor-pointer"
+                      style={{
+                        left: "6px",
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        color: colors.accent,
+                      }}
+                      aria-label="Previous photo"
+                    >
+                      ◀
+                    </button>
+
+                    {/* Next Button */}
+                    <button
+                      type="button"
+                      onClick={nextPhoto}
+                      className="arr next absolute text-base w-6 h-6 flex items-center justify-center cursor-pointer"
+                      style={{
+                        right: "6px",
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        color: colors.accent,
+                      }}
+                      aria-label="Next photo"
+                    >
+                      ▶
+                    </button>
+                  </div>
                   {/* Center OK Button */}
                   <button
                     type="button"
@@ -1452,8 +1523,10 @@ export function BirthdayRetroCamera({
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      background: "radial-gradient(circle at 40% 30%, #fff, #d8d7d3 60%, #b5b4b0)",
-                      boxShadow: "inset 0 -2px 3px rgba(0,0,0,0.2), 0 2px 3px rgba(0,0,0,0.3)",
+                      background:
+                        "radial-gradient(circle at 40% 30%, #fff, #d8d7d3 60%, #b5b4b0)",
+                      boxShadow:
+                        "inset 0 -2px 3px rgba(0,0,0,0.2), 0 2px 3px rgba(0,0,0,0.3)",
                       fontWeight: "bold",
                       fontSize: "11px",
                       border: "1px solid #8a8985",
@@ -1462,28 +1535,6 @@ export function BirthdayRetroCamera({
                     aria-label="OK"
                   >
                     OK
-                  </button>
-
-                  {/* Prev Button */}
-                  <button
-                    type="button"
-                    onClick={prevPhoto}
-                    className="arr prev absolute text-base w-6 h-6 flex items-center justify-center cursor-pointer"
-                    style={{ left: "10px", top: "50%", transform: "translateY(-50%)", color: colors.accent }}
-                    aria-label="Previous photo"
-                  >
-                    ◀
-                  </button>
-
-                  {/* Next Button */}
-                  <button
-                    type="button"
-                    onClick={nextPhoto}
-                    className="arr next absolute text-base w-6 h-6 flex items-center justify-center cursor-pointer"
-                    style={{ right: "10px", top: "50%", transform: "translateY(-50%)", color: colors.accent }}
-                    aria-label="Next photo"
-                  >
-                    ▶
                   </button>
                 </div>
 
@@ -1559,7 +1610,7 @@ export function BirthdayRetroCamera({
                   <button
                     type="button"
                     onClick={() => setActivePhotoIdx(i)}
-                    className={`print bg-white p-1 pb-2.5 rounded-sm shadow-md border transition-all duration-200 hover:rotate-0 hover:scale-110 cursor-pointer relative ${
+                    className={`print bg-white p-1 pb-4 shadow-md border transition-all duration-200 hover:rotate-0 hover:scale-110 cursor-pointer relative ${
                       isSelected ? "ring-2" : "border-gray-200"
                     }`}
                     style={{
@@ -1598,7 +1649,7 @@ export function BirthdayRetroCamera({
 
       {/* ─── A LITTLE NOTE: LINED PAPER NOTEBOOK LETTER ─── */}
       <section
-        className="px-4 mt-8 max-w-md mx-auto flex flex-col items-center"
+        className="px-4 mt-8 max-w-xl mx-auto flex flex-col items-center"
         aria-labelledby="pop-note-title"
       >
         <FadeIn delay={0.05}>
@@ -1616,7 +1667,7 @@ export function BirthdayRetroCamera({
             <img
               src="/img/bd5.png"
               alt="confetti"
-              style={{ transform: "rotate(9deg)" }}
+              style={{ transform: "rotate(9deg)", animation: "float 3.8s ease-in-out infinite", "--rotate": "9deg" }}
               className="ps absolute -right-3 -top-6 w-20 h-20 object-contain select-none z-20 filter drop-shadow-xs pointer-events-none"
             />
 
@@ -1672,7 +1723,7 @@ export function BirthdayRetroCamera({
 
       {/* ─── RELEASE BALLOONS & CELEBRATION SECTION ─── */}
       <section
-        className="release px-4 mt-6 max-w-md mx-auto flex flex-col items-center text-center space-y-3"
+        className="release px-4 mt-6 max-w-xl mx-auto flex flex-col items-center text-center space-y-3"
         aria-label="Release balloons"
       >
         <PopUp delay={0.05} duration={0.55}>
@@ -1695,7 +1746,14 @@ export function BirthdayRetroCamera({
         </PopUp>
 
         <Bounce delay={0.15} duration={0.65}>
-          <div className="bye pt-2">
+          <div className="bye pt-2 relative">
+            {/* Cat Sticker */}
+            <img
+              src="/img/bd6.png"
+              alt="confetti"
+              style={{ transform: "rotate(-5deg)", animation: "float 3.3s ease-in-out infinite", "--rotate": "-5deg" }}
+              className="absolute -left-12 top-0 w-20 h-20 object-contain select-none z-20 filter drop-shadow-xs pointer-events-none"
+            />
             <b className="block font-extrabold text-3xl sm:text-4xl text-[#df2e62] tracking-wide select-none drop-shadow-2xs">
               {data.closingTitle}
             </b>
