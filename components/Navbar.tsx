@@ -53,9 +53,11 @@ export function Navbar() {
           href="/"
           className="flex items-center gap-2.5 text-[#4c2834] font-extrabold text-xl tracking-tight no-underline group hover:opacity-90 transition-opacity shrink-0"
         >
-          <span className="w-9 h-9 rounded-xl bg-[#f9e3e8] text-[#d52c5a] flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
-            <Heart size={18} fill="currentColor" />
-          </span>
+          <img
+            src="/logo.png"
+            alt="SweetMemos Logo"
+            className="w-9 h-9 rounded-xl shadow-sm group-hover:scale-105 transition-transform object-contain"
+          />
           <span className="font-serif">sweetmemos</span>
         </Link>
 

@@ -133,8 +133,8 @@ export default function Home() {
                   <span className="absolute -top-3 -left-3 text-[#d78f9e]">
                     <Sparkles size={24} />
                   </span>
-                  <span className="absolute -bottom-2 -right-2 text-[#d78f9e]">
-                    <Heart size={22} fill="currentColor" />
+                  <span className="absolute -bottom-2 -right-2 w-8 h-8">
+                    <img src="/logo.png" alt="SweetMemos Logo" className="w-full h-full object-contain" />
                   </span>
 
                   {/* Letter Card */}

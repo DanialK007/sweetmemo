@@ -14,9 +14,7 @@ export function Footer() {
           href="/"
           className="flex items-center gap-2 font-serif font-extrabold text-base text-[#4c2834]"
         >
-          <span className="w-6 h-6 rounded-lg bg-[#f9e3e8] text-[#d52c5a] flex items-center justify-center">
-            <Heart size={13} fill="currentColor" />
-          </span>
+          <img src="/logo.png" alt="SweetMemos Logo" className="w-6 h-6 rounded-lg object-contain" />
           <span>sweetmemos</span>
         </Link>
         <span className="text-xs text-[#967f85] text-center sm:text-left">

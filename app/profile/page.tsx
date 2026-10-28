@@ -124,8 +124,8 @@ export default function ProfilePage() {
             {/* Guest Card */}
             <div className="max-w-md mx-auto">
               <div className="bg-gradient-to-br from-white to-[#fdf0f3] border border-[#f4e6e9] rounded-3xl p-10 text-center shadow-lg space-y-5">
-                <div className="w-20 h-20 rounded-2xl bg-[#fbe8ed] text-[#d92d5c] flex items-center justify-center mx-auto shadow-sm">
-                  <UserIcon size={34} />
+                <div className="w-20 h-20 rounded-2xl bg-[#fbe8ed] flex items-center justify-center mx-auto shadow-sm">
+                  <img src="/logo.png" alt="SweetMemos Logo" className="w-16 h-16 object-contain" />
                 </div>
                 <div>
                   <h2 className="font-serif font-extrabold text-xl text-[#4b2935]">

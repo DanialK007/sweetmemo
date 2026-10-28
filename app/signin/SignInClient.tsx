@@ -35,8 +35,8 @@ export default function SignInClient() {
         <main className="flex-1 flex items-center justify-center p-4 sm:p-6">
           <FadeContent effect="mist" duration={1.6} trigger="mount">
             <div className="bg-white rounded-3xl border border-[#f4e6e9] p-8 sm:p-10 text-center max-w-md w-full shadow-lg space-y-5">
-              <div className="w-16 h-16 rounded-2xl bg-[#fbe8ed] text-[#cb3159] flex items-center justify-center mx-auto shadow-sm">
-                <Heart size={28} fill="currentColor" />
+              <div className="w-16 h-16 rounded-2xl bg-[#fbe8ed] flex items-center justify-center mx-auto shadow-sm">
+                <img src="/logo.png" alt="SweetMemos Logo" className="w-12 h-12 object-contain" />
               </div>
 
               <div>
@@ -105,9 +105,9 @@ export default function SignInClient() {
               {/* Decorative top glow */}
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-1.5 bg-gradient-to-r from-transparent via-[#d92d5c] to-transparent rounded-full"></div>
 
-              {/* Heart Badge */}
-              <div className="w-14 h-14 rounded-2xl bg-[#fbe8ed] text-[#cb3159] flex items-center justify-center mx-auto mb-5 shadow-xs">
-                <Heart size={26} fill="currentColor" />
+              {/* Logo Badge */}
+              <div className="w-14 h-14 rounded-2xl bg-[#fbe8ed] flex items-center justify-center mx-auto mb-5 shadow-xs">
+                <img src="/logo.png" alt="SweetMemos Logo" className="w-10 h-10 object-contain" />
               </div>
 
               {/* Headings */}
