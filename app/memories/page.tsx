@@ -256,7 +256,9 @@ export default function TodayPage() {
                                 : `From ${p.senderName}`}
                             </p>
                             <p className="text-[10px] text-[#9b848a]">
-                              {p.createdAt ? new Date(p.createdAt?.toDate?.() || p.createdAt).toLocaleDateString() : "N/A"}
+                              {p.createdAt 
+                                ? new Date(typeof p.createdAt === 'string' ? p.createdAt : p.createdAt.toDate()).toLocaleDateString() 
+                                : "N/A"}
                             </p>
                           </div>
 
