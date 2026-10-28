@@ -20,6 +20,7 @@ import FadeContent from "@/components/FadeContent";
 import { useLanguage } from "@/context/LanguageContext";
 import { useAuth } from "@/context/AuthContext";
 import { getUserPages, moveToTrash } from "@/lib/firestore";
+import SwipeToast from "@/components/SwipeToast";
 import {
   BirthdayRetroCamera,
   defaultBirthdayData,
@@ -45,6 +46,7 @@ export default function TodayPage() {
   const [copied, setCopied] = useState("");
   const [isLoadingPages, setIsLoadingPages] = useState(true);
   const [menuOpen, setMenuOpen] = useState<string | null>(null);
+  const [toasts, setToasts] = useState<{ id: number; type: 'success' | 'error'; title: string; description?: string }[]>([]);
 
   useEffect(() => {
     const fetchCards = async () => {
@@ -123,8 +125,10 @@ export default function TodayPage() {
     try {
       await navigator.clipboard.writeText(url);
       setCopied(slug);
+      setToasts(t => [...t, { id: Date.now(), type: 'success', title: language === 'my' ? 'လင့်ခ် ကူးပြီးပါပြီ' : 'Link copied' }]);
       window.setTimeout(() => setCopied(""), 1800);
     } catch {
+      setToasts(t => [...t, { id: Date.now(), type: 'error', title: language === 'my' ? 'လင့်ခ် ကူးမှု မအောင်မြင်ပါ' : 'Failed to copy link' }]);
       setCopied("");
     }
   };
@@ -141,25 +145,23 @@ export default function TodayPage() {
   const handleDelete = async (slug: string) => {
     if (!user) return;
 
-    const confirmed = window.confirm(
-      language === "my"
-        ? "ဤုင်းနှိပ်ချင်းမှာ သိမ်းဆည်းထားပါမည်။ ၃၀ ရက်အတွင်း ပြန်လည်ရယူနိုင်ပါသည်။"
-        : "This will move the card to trash. You can restore it within 30 days."
-    );
-
-    if (!confirmed) return;
-
     try {
       await moveToTrash(slug);
       setPages((prev) => prev.filter((p) => p.slug !== slug));
       setMenuOpen(null);
+      setToasts(t => [...t, { 
+        id: Date.now(), 
+        type: 'success', 
+        title: language === 'my' ? 'ကတ်ကို ဖျက်ပြီးပါပြီ' : 'Card moved to trash',
+        description: language === 'my' ? '၃၀ ရက်အတွင်း ပြန်လည်ရယူနိုင်ပါသည်' : 'Can be restored within 30 days'
+      }]);
     } catch (err) {
       console.error("Error deleting card:", err);
-      alert(
-        language === "my"
-          ? "ဖျက်ရာတွင် အမှားဖြစ်ပါသည်"
-          : "Failed to delete card. Please try again."
-      );
+      setToasts(t => [...t, { 
+        id: Date.now(), 
+        type: 'error', 
+        title: language === 'my' ? 'ဖျက်ရာတွင် အမှားဖြစ်ပါသည်' : 'Failed to delete card'
+      }]);
     }
   };
 
@@ -435,6 +437,23 @@ export default function TodayPage() {
       </main>
 
       <Footer />
+
+      {/* Toast Notifications */}
+      <div style={{ position: 'fixed', bottom: 20, right: 20, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 10, zIndex: 9999 }}>
+        {toasts.map(t => (
+          <SwipeToast
+            key={t.id}
+            inline
+            title={t.title}
+            description={t.description}
+            duration={3000}
+            onClose={() => setToasts(s => s.filter(x => x.id !== t.id))}
+            background={t.type === 'error' ? '#dc2626' : '#27272a'}
+            color="#f5f5f5"
+            fuseColor={t.type === 'error' ? '#ef4444' : '#f5a524'}
+          />
+        ))}
+      </div>
     </div>
   );
 }
