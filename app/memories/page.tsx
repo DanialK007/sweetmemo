@@ -32,6 +32,7 @@ interface SavedPage {
   message: string;
   theme: string;
   createdAt: string;
+  birthdayData?: BirthdayCardData;
 }
 
 export default function TodayPage() {
@@ -171,14 +172,14 @@ export default function TodayPage() {
 
                 {isLoadingPages ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-4">
-                    {[1, 2, 3, 4].map((i) => (
+                    {[1, 2].map((i) => (
                       <div
                         key={i}
                         className="group relative rounded-3xl border border-[#f4e6e9] bg-white p-4 shadow-sm overflow-hidden"
                       >
                         {/* Card Preview Skeleton */}
                         <div className="aspect-4/3 scale-[2.25] translate-y-12 rounded-2xl overflow-hidden bg-gray-100 mb-4 relative">
-                          <div className="w-full h-full bg-gray-200 animate-pulse" />
+                          <div className="w-full h-full bg-rose-100 animate-pulse" />
                         </div>
 
                         <div className="h-20"></div>
@@ -186,15 +187,15 @@ export default function TodayPage() {
                         <div className="absolute inset-0 z-5 bg-linear-to-t from-white via-white/50 from-5% via-60% to-80% flex flex-col justify-end p-4">
                           {/* Card Info Skeleton */}
                           <div className="space-y-2 z-10 relative">
-                            <div className="h-6 bg-gray-200 rounded animate-pulse w-3/4" />
-                            <div className="h-4 bg-gray-200 rounded animate-pulse w-1/2" />
-                            <div className="h-3 bg-gray-200 rounded animate-pulse w-1/3" />
+                            <div className="h-6 bg-rose-100 rounded animate-pulse w-3/4" />
+                            <div className="h-4 bg-rose-100 rounded animate-pulse w-1/2" />
+                            <div className="h-3 bg-rose-100 rounded animate-pulse w-1/3" />
                           </div>
 
                           {/* Actions Skeleton */}
                           <div className="flex z-10 relative items-center gap-2 mt-3 pt-2 border-t border-[#f8ebed2e]">
-                            <div className="flex-1 h-8 bg-gray-200 rounded-lg animate-pulse" />
-                            <div className="w-8 h-8 bg-gray-200 rounded-lg animate-pulse" />
+                            <div className="flex-1 h-8 bg-rose-100 rounded-lg animate-pulse" />
+                            <div className="w-8 h-8 bg-rose-100 rounded-lg animate-pulse" />
                           </div>
                         </div>
                       </div>
