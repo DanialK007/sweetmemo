@@ -11,6 +11,9 @@ import {
   Link2,
   Mail,
   Sparkles,
+  MoreVertical,
+  Trash2,
+  Star,
 } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import FadeContent from "@/components/FadeContent";
@@ -41,6 +44,7 @@ export default function TodayPage() {
   const [pages, setPages] = useState<SavedPage[]>([]);
   const [copied, setCopied] = useState("");
   const [isLoadingPages, setIsLoadingPages] = useState(true);
+  const [menuOpen, setMenuOpen] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchCards = async () => {
@@ -123,6 +127,20 @@ export default function TodayPage() {
     } catch {
       setCopied("");
     }
+  };
+
+  const toggleMenu = (slug: string) => {
+    setMenuOpen(menuOpen === slug ? null : slug);
+  };
+
+  const handleFavorite = async (slug: string) => {
+    // TODO: Implement favorite functionality
+    setMenuOpen(null);
+  };
+
+  const handleDelete = async (slug: string) => {
+    // TODO: Implement delete with 30-day trash
+    setMenuOpen(null);
   };
 
   return (
@@ -243,13 +261,42 @@ export default function TodayPage() {
                         <div className="h-20"></div>
 
                         <div className="absolute top-0 right-0 p-4 z-10">
-                          <Link
-                            href={`/editor/${p.templateSlug}?slug=${p.slug}`}
-                            className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-white/90 hover:bg-white text-[#806c72] hover:text-[#56343e] shadow-sm transition-colors cursor-pointer"
-                            aria-label="Edit card"
-                          >
-                            <Sparkles size={14} />
-                          </Link>
+                          <div className="relative">
+                            <button
+                              onClick={() => toggleMenu(p.slug)}
+                              className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-white/90 hover:bg-white text-[#806c72] hover:text-[#56343e] shadow-sm transition-colors cursor-pointer"
+                              aria-label="More options"
+                            >
+                              <MoreVertical size={14} />
+                            </button>
+
+                            {menuOpen === p.slug && (
+                              <div className="absolute right-0 top-10 bg-white rounded-xl shadow-lg border border-[#f4e6e9] py-1 w-32 z-20">
+                                <button
+                                  onClick={() => handleFavorite(p.slug)}
+                                  className="w-full px-3 py-2 text-left text-xs text-[#56343e] hover:bg-[#f8ebed] flex items-center gap-2 transition-colors"
+                                >
+                                  <Star size={12} />
+                                  <span>Favorite</span>
+                                </button>
+                                <Link
+                                  href={`/editor/${p.templateSlug}?slug=${p.slug}`}
+                                  className="w-full px-3 py-2 text-left text-xs text-[#56343e] hover:bg-[#f8ebed] flex items-center gap-2 transition-colors"
+                                  onClick={() => setMenuOpen(null)}
+                                >
+                                  <Sparkles size={12} />
+                                  <span>Edit</span>
+                                </Link>
+                                <button
+                                  onClick={() => handleDelete(p.slug)}
+                                  className="w-full px-3 py-2 text-left text-xs text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors"
+                                >
+                                  <Trash2 size={12} />
+                                  <span>Delete</span>
+                                </button>
+                              </div>
+                            )}
+                          </div>
                         </div>
 
                         <div className="absolute inset-0 z-5 bg-linear-to-t from-white via-white/50 from-5% via-60% to-80% flex flex-col justify-end p-4">
