@@ -46,7 +46,7 @@ export default function TodayPage() {
   const [copied, setCopied] = useState("");
   const [isLoadingPages, setIsLoadingPages] = useState(true);
   const [menuOpen, setMenuOpen] = useState<string | null>(null);
-  const [toasts, setToasts] = useState<{ id: number; type: 'success' | 'error'; title: string; description?: string; actionLabel?: string; onAction?: () => void }[]>([]);
+  const [toasts, setToasts] = useState<{ id: number; type: 'success' | 'error'; title: string; description?: string; actionLabel?: string; onAction?: () => void; onClose?: () => void }[]>([]);
   const pendingDeletes = useRef<Map<string, boolean>>(new Map());
 
   // Close menu when clicking outside
@@ -162,7 +162,7 @@ export default function TodayPage() {
     const pageToDelete = pages.find(p => p.slug === slug);
     if (!pageToDelete) return;
 
-    // Mark this delete as pending
+    // Mark this delete as pending (not cancelled)
     pendingDeletes.current.set(slug, true);
 
     // Optimistic: remove from UI immediately
@@ -182,30 +182,26 @@ export default function TodayPage() {
         pendingDeletes.current.set(slug, false);
         setPages((prev) => [...prev, pageToDelete]);
         setToasts(s => s.filter(x => x.id !== toastId));
+      },
+      onClose: () => {
+        // Toast closed naturally - execute the database operation if not cancelled
+        if (pendingDeletes.current.get(slug)) {
+          moveToTrash(slug).catch(err => {
+            console.error("Error deleting card:", err);
+            // Restore the item in UI since delete failed
+            setPages((prev) => [...prev, pageToDelete]);
+            setToasts(t => [...t, {
+              id: Date.now(),
+              type: 'error',
+              title: language === 'my' ? 'ဖျက်ရာတွင် အမှားဖြစ်ပါသည်' : 'Failed to delete card',
+              description: ''
+            }]);
+          });
+        }
+        // Clean up the pending flag
+        pendingDeletes.current.delete(slug);
       }
     }]);
-
-    // Run delete in background
-    try {
-      // Check if delete was cancelled before actually moving to trash
-      if (pendingDeletes.current.get(slug)) {
-        await moveToTrash(slug);
-      }
-      // Clean up the pending flag
-      pendingDeletes.current.delete(slug);
-    } catch (err) {
-      console.error("Error deleting card:", err);
-      // Restore the item in UI since delete failed
-      setPages((prev) => [...prev, pageToDelete]);
-      setToasts(s => s.filter(x => x.id !== toastId));
-      setToasts(t => [...t, {
-        id: Date.now(),
-        type: 'error',
-        title: language === 'my' ? 'ဖျက်ရာတွင် အမှားဖြစ်ပါသည်' : 'Failed to delete card',
-        description: ''
-      }]);
-      pendingDeletes.current.delete(slug);
-    }
   };
 
   return (
@@ -507,9 +503,12 @@ export default function TodayPage() {
             actionLabel={t.actionLabel}
             onAction={t.onAction}
             duration={4000}
-            onClose={() => setToasts(s => s.filter(x => x.id !== t.id))}
-            color="#d52c5a"
-            background="#f5f5f5"
+            onClose={() => {
+              t.onClose?.();
+              setToasts(s => s.filter(x => x.id !== t.id));
+            }}
+            background="#27272a"
+            color="#f5f5f5"
             fuseColor="#d52c5a"
             width={356}
             radius={12}

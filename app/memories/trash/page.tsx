@@ -33,7 +33,7 @@ export default function TrashPage() {
   const { user, loading } = useAuth();
   const [trashItems, setTrashItems] = useState<TrashItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [toasts, setToasts] = useState<{ id: number; type: 'success' | 'error'; title: string; description?: string; actionLabel?: string; onAction?: () => void }[]>([]);
+  const [toasts, setToasts] = useState<{ id: number; type: 'success' | 'error'; title: string; description?: string; actionLabel?: string; onAction?: () => void; onClose?: () => void }[]>([]);
   const pendingOperations = useRef<Map<string, boolean>>(new Map());
 
   useEffect(() => {
@@ -59,7 +59,7 @@ export default function TrashPage() {
     const itemToRestore = trashItems.find(item => item.slug === slug);
     if (!itemToRestore) return;
 
-    // Mark this restore as pending
+    // Mark this restore as pending (not cancelled)
     pendingOperations.current.set(slug, true);
 
     // Optimistic: remove from UI immediately
@@ -78,30 +78,26 @@ export default function TrashPage() {
         pendingOperations.current.set(slug, false);
         setTrashItems((prev) => [...prev, itemToRestore]);
         setToasts(s => s.filter(x => x.id !== toastId));
+      },
+      onClose: () => {
+        // Toast closed naturally - execute the database operation if not cancelled
+        if (pendingOperations.current.get(slug)) {
+          restoreFromTrash(slug).catch(err => {
+            console.error("Error restoring card:", err);
+            // Restore the item in UI since restore failed
+            setTrashItems((prev) => [...prev, itemToRestore]);
+            setToasts(t => [...t, {
+              id: Date.now(),
+              type: 'error',
+              title: language === 'my' ? 'ပြန်လည်ရယူရာတွင် အမှားဖြစ်ပါသည်' : 'Failed to restore card',
+              description: ''
+            }]);
+          });
+        }
+        // Clean up the pending flag
+        pendingOperations.current.delete(slug);
       }
     }]);
-
-    // Run restore in background
-    try {
-      // Check if restore was cancelled before actually restoring
-      if (pendingOperations.current.get(slug)) {
-        await restoreFromTrash(slug);
-      }
-      // Clean up the pending flag
-      pendingOperations.current.delete(slug);
-    } catch (err) {
-      console.error("Error restoring card:", err);
-      // Restore the item in UI since restore failed
-      setTrashItems((prev) => [...prev, itemToRestore]);
-      setToasts(s => s.filter(x => x.id !== toastId));
-      setToasts(t => [...t, {
-        id: Date.now(),
-        type: 'error',
-        title: language === 'my' ? 'ပြန်လည်ရယူရာတွင် အမှားဖြစ်ပါသည်' : 'Failed to restore card',
-        description: ''
-      }]);
-      pendingOperations.current.delete(slug);
-    }
   };
 
   const handleDelete = async (slug: string) => {
@@ -109,7 +105,7 @@ export default function TrashPage() {
     const itemToDelete = trashItems.find(item => item.slug === slug);
     if (!itemToDelete) return;
 
-    // Mark this delete as pending
+    // Mark this delete as pending (not cancelled)
     pendingOperations.current.set(slug, true);
 
     // Optimistic: remove from UI immediately
@@ -128,30 +124,26 @@ export default function TrashPage() {
         pendingOperations.current.set(slug, false);
         setTrashItems((prev) => [...prev, itemToDelete]);
         setToasts(s => s.filter(x => x.id !== toastId));
+      },
+      onClose: () => {
+        // Toast closed naturally - execute the database operation if not cancelled
+        if (pendingOperations.current.get(slug)) {
+          permanentlyDeleteFromTrash(slug).catch(err => {
+            console.error("Error deleting card:", err);
+            // Restore the item in UI since delete failed
+            setTrashItems((prev) => [...prev, itemToDelete]);
+            setToasts(t => [...t, {
+              id: Date.now(),
+              type: 'error',
+              title: language === 'my' ? 'ဖျက်ရာတွင် အမှားဖြစ်ပါသည်' : 'Failed to delete',
+              description: ''
+            }]);
+          });
+        }
+        // Clean up the pending flag
+        pendingOperations.current.delete(slug);
       }
     }]);
-
-    // Run delete in background
-    try {
-      // Check if delete was cancelled before actually permanently deleting
-      if (pendingOperations.current.get(slug)) {
-        await permanentlyDeleteFromTrash(slug);
-      }
-      // Clean up the pending flag
-      pendingOperations.current.delete(slug);
-    } catch (err) {
-      console.error("Error deleting card:", err);
-      // Restore the item in UI since delete failed
-      setTrashItems((prev) => [...prev, itemToDelete]);
-      setToasts(s => s.filter(x => x.id !== toastId));
-      setToasts(t => [...t, {
-        id: Date.now(),
-        type: 'error',
-        title: language === 'my' ? 'ဖျက်ရာတွင် အမှားဖြစ်ပါသည်' : 'Failed to delete',
-        description: ''
-      }]);
-      pendingOperations.current.delete(slug);
-    }
   };
 
   // Show loading state
@@ -316,9 +308,12 @@ export default function TrashPage() {
             actionLabel={t.actionLabel}
             onAction={t.onAction}
             duration={4000}
-            onClose={() => setToasts(s => s.filter(x => x.id !== t.id))}
-            color="#d52c5a"
-            background="#f5f5f5"
+            onClose={() => {
+              t.onClose?.();
+              setToasts(s => s.filter(x => x.id !== t.id));
+            }}
+            background="#27272a"
+            color="#f5f5f5"
             fuseColor="#d52c5a"
             width={356}
             radius={12}
