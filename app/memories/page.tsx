@@ -205,9 +205,18 @@ export default function TodayPage() {
                     </p>
                   </div>
 
-                  <span className="w-10 h-10 rounded-2xl bg-[#fbe8ed] text-[#cb3159] flex items-center justify-center shrink-0">
-                    <Heart size={20} fill="currentColor" />
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <Link
+                      href="/trash"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#f8ebed] hover:bg-[#f0dce1] text-[#806c72] hover:text-[#56343e] text-xs font-bold transition-colors"
+                    >
+                      <Trash2 size={14} />
+                      <span>{language === 'my' ? 'ဖျက်ခဲ့ထား' : 'Trash'}</span>
+                    </Link>
+                    <span className="w-10 h-10 rounded-2xl bg-[#fbe8ed] text-[#cb3159] flex items-center justify-center shrink-0">
+                      <Heart size={20} fill="currentColor" />
+                    </span>
+                  </div>
                 </div>
 
                 {isLoadingPages ? (
