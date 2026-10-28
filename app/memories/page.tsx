@@ -48,6 +48,18 @@ export default function TodayPage() {
   const [menuOpen, setMenuOpen] = useState<string | null>(null);
   const [toasts, setToasts] = useState<{ id: number; type: 'success' | 'error'; title: string; description?: string; actionLabel?: string; onAction?: () => void }[]>([]);
 
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuOpen && !(event.target as HTMLElement).closest('.menu-container')) {
+        setMenuOpen(null);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [menuOpen]);
+
   useEffect(() => {
     const fetchCards = async () => {
       if (!user) return;
@@ -312,7 +324,7 @@ export default function TodayPage() {
                         <div className="h-20"></div>
 
                         <div className="absolute top-0 right-0 p-4 z-10">
-                          <div className="relative">
+                          <div className="relative menu-container">
                             <button
                               onClick={() => toggleMenu(p.slug)}
                               className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-white/90 hover:bg-white text-[#806c72] hover:text-[#56343e] shadow-sm transition-colors cursor-pointer"
@@ -322,25 +334,31 @@ export default function TodayPage() {
                             </button>
 
                             {menuOpen === p.slug && (
-                              <div className="absolute right-0 top-10 bg-white rounded-xl shadow-lg border border-[#f4e6e9] py-1 w-32 z-20">
+                              <div className="absolute right-0 top-10 bg-white rounded-xl shadow-lg border border-[#f4e6e9] py-1 w-28 z-20 overflow-hidden menu-container">
                                 <button
-                                  onClick={() => handleFavorite(p.slug)}
-                                  className="w-full px-3 py-2 text-left text-xs text-[#56343e] hover:bg-[#f8ebed] flex items-center gap-2 transition-colors"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleFavorite(p.slug);
+                                  }}
+                                  className="w-full cursor-pointer px-3 py-2 text-left text-xs text-[#56343e] hover:bg-[#f8ebed] flex items-center gap-2 transition-colors"
                                 >
                                   <Star size={12} />
                                   <span>Favorite</span>
                                 </button>
                                 <Link
                                   href={`/editor/${p.templateSlug}?slug=${p.slug}`}
-                                  className="w-full px-3 py-2 text-left text-xs text-[#56343e] hover:bg-[#f8ebed] flex items-center gap-2 transition-colors"
+                                  className="w-full cursor-pointer px-3 py-2 text-left text-xs text-[#56343e] hover:bg-[#f8ebed] flex items-center gap-2 transition-colors"
                                   onClick={() => setMenuOpen(null)}
                                 >
                                   <Sparkles size={12} />
                                   <span>Edit</span>
                                 </Link>
                                 <button
-                                  onClick={() => handleDelete(p.slug)}
-                                  className="w-full px-3 py-2 text-left text-xs text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDelete(p.slug);
+                                  }}
+                                  className="w-full cursor-pointer px-3 py-2 text-left text-xs text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors"
                                 >
                                   <Trash2 size={12} />
                                   <span>Delete</span>
