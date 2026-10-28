@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ChangeEvent } from "react";
+import { useState, useEffect, type ChangeEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -25,7 +25,7 @@ import {
   type BirthdayCardData,
 } from "@/components/templates/BirthdayRetroCamera";
 import { uploadCardPhoto } from "@/lib/storage";
-import { savePageToFirestore } from "@/lib/firestore";
+import { savePageToFirestore, updatePageInFirestore, getPageBySlug } from "@/lib/firestore";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
 import FadeContent from "@/components/FadeContent";
@@ -39,6 +39,8 @@ export function BirthdayCardEditor({ slug }: BirthdayCardEditorProps) {
   const router = useRouter();
   const { user } = useAuth();
   const { language } = useLanguage();
+  const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+  const existingSlug = searchParams?.get('slug');
 
   const [data, setData] = useState<BirthdayCardData>(defaultBirthdayData);
   const [activeTab, setActiveTab] = useState<"text" | "photos">("text");
@@ -48,6 +50,8 @@ export function BirthdayCardEditor({ slug }: BirthdayCardEditorProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [error, setError] = useState("");
   const [selectedTheme, setSelectedTheme] = useState<"rose" | "lavender" | "gold">("gold");
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const updateField = <K extends keyof BirthdayCardData>(
     field: K,
@@ -55,6 +59,30 @@ export function BirthdayCardEditor({ slug }: BirthdayCardEditorProps) {
   ) => {
     setData((prev) => ({ ...prev, [field]: value }));
   };
+
+  // Load existing card data if editing
+  useEffect(() => {
+    const loadExistingCard = async () => {
+      if (!existingSlug || !user) return;
+
+      setIsLoading(true);
+      try {
+        const page = await getPageBySlug(existingSlug);
+        if (page && page.userId === user.uid) {
+          setData(page.birthdayData || defaultBirthdayData);
+          setSelectedTheme(page.theme as "rose" | "lavender" | "gold");
+          setIsEditMode(true);
+        }
+      } catch (err) {
+        console.error("Error loading card:", err);
+        setError("Failed to load card data");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadExistingCard();
+  }, [existingSlug, user]);
 
   const handleFileUpload = async (
     e: ChangeEvent<HTMLInputElement>,
@@ -150,22 +178,36 @@ export function BirthdayCardEditor({ slug }: BirthdayCardEditorProps) {
         finalData.polaroidPhotos = uploadedPhotos;
       }
 
-      const pageSlug = `${slug}-${Date.now().toString(36)}`;
-      const pageItem = {
-        slug: pageSlug,
-        templateSlug: slug,
-        recipientName: finalData.recipientName!.trim(),
-        senderName: finalData.senderName!.trim(),
-        occasionDate: finalData.occasionDate || null,
-        message: finalData.letterContent || "",
-        theme: selectedTheme,
-        birthdayData: finalData,
-      };
+      if (isEditMode && existingSlug) {
+        // Update existing card
+        await updatePageInFirestore(existingSlug, {
+          recipientName: finalData.recipientName!.trim(),
+          senderName: finalData.senderName!.trim(),
+          occasionDate: finalData.occasionDate || null,
+          message: finalData.letterContent || "",
+          theme: selectedTheme,
+          birthdayData: finalData,
+        });
+        router.push(`/p/${existingSlug}`);
+      } else {
+        // Create new card
+        const pageSlug = `${slug}-${Date.now().toString(36)}`;
+        const pageItem = {
+          slug: pageSlug,
+          templateSlug: slug,
+          recipientName: finalData.recipientName!.trim(),
+          senderName: finalData.senderName!.trim(),
+          occasionDate: finalData.occasionDate || null,
+          message: finalData.letterContent || "",
+          theme: selectedTheme,
+          birthdayData: finalData,
+        };
 
-      // Save to Firestore
-      await savePageToFirestore(user.uid, pageItem);
+        // Save to Firestore
+        await savePageToFirestore(user.uid, pageItem);
 
-      router.push(`/p/${pageSlug}`);
+        router.push(`/p/${pageSlug}`);
+      }
     } catch (err) {
       console.error("Error saving card:", err);
       setError(
@@ -189,6 +231,20 @@ export function BirthdayCardEditor({ slug }: BirthdayCardEditorProps) {
     }
     return new File([u8arr], filename, { type: mime });
   };
+
+  // Show loading state when fetching existing card
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="text-center">
+          <div className="w-12 h-12 rounded-2xl bg-[#fbe8ed] text-[#d92d5c] flex items-center justify-center mx-auto mb-4 animate-spin">
+            <LoaderCircle size={24} className="text-[#d92d5c]" />
+          </div>
+          <p className="text-sm text-[#8e7c81]">Loading card data...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white flex flex-col">

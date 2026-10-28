@@ -44,6 +44,28 @@ export async function savePageToFirestore(
 }
 
 /**
+ * Update an existing page in Firestore
+ */
+export async function updatePageInFirestore(
+  slug: string,
+  pageData: Partial<Omit<PageData, "userId" | "createdAt" | "slug">>
+): Promise<void> {
+  const pagesRef = collection(db, "pages");
+  const q = query(pagesRef, where("slug", "==", slug));
+  const querySnapshot = await getDocs(q);
+
+  if (querySnapshot.empty) {
+    throw new Error("Page not found");
+  }
+
+  const docRef = querySnapshot.docs[0].ref;
+  await setDoc(docRef, {
+    ...pageData,
+    updatedAt: serverTimestamp(),
+  }, { merge: true });
+}
+
+/**
  * Fetch a page by slug from Firestore
  */
 export async function getPageBySlug(slug: string): Promise<PageData | null> {
