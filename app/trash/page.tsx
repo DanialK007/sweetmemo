@@ -7,7 +7,12 @@ import { Footer } from "@/components/Footer";
 import FadeContent from "@/components/FadeContent";
 import { useLanguage } from "@/context/LanguageContext";
 import { useAuth } from "@/context/AuthContext";
-import { getUserPages, restoreFromTrash } from "@/lib/firestore";
+import { getUserTrash, restoreFromTrash, permanentlyDeleteFromTrash } from "@/lib/firestore";
+import {
+  BirthdayRetroCamera,
+  defaultBirthdayData,
+  type BirthdayCardData,
+} from "@/components/templates/BirthdayRetroCamera";
 import SwipeToast from "@/components/SwipeToast";
 
 interface TrashItem {
@@ -36,11 +41,8 @@ export default function TrashPage() {
 
       setIsLoading(true);
       try {
-        // For now, we'll query the trash collection
-        // Note: This requires adding getTrashItems to firestore.ts
-        const items = await getUserPages(user.uid);
-        // Filter to show only items that have been deleted (you'd normally query trash collection directly)
-        setTrashItems([]);
+        const items = await getUserTrash(user.uid);
+        setTrashItems(items as TrashItem[]);
       } catch (err) {
         console.error("Error fetching trash:", err);
       } finally {
@@ -82,7 +84,7 @@ export default function TrashPage() {
     if (!confirmed) return;
 
     try {
-      // TODO: Implement permanent delete from trash
+      await permanentlyDeleteFromTrash(slug);
       setTrashItems((prev) => prev.filter((item) => item.slug !== slug));
       setToasts(t => [...t, { 
         id: Date.now(), 

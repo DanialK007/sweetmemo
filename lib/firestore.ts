@@ -145,3 +145,30 @@ export async function restoreFromTrash(slug: string): Promise<void> {
   // Delete from trash
   await deleteDoc(trashDoc.ref);
 }
+
+/**
+ * Fetch all trash items for a specific user
+ */
+export async function getUserTrash(userId: string): Promise<PageData[]> {
+  const trashRef = collection(db, "trash");
+  const q = query(trashRef, where("userId", "==", userId));
+  const querySnapshot = await getDocs(q);
+
+  return querySnapshot.docs.map((doc) => doc.data() as PageData);
+}
+
+/**
+ * Permanently delete an item from trash
+ */
+export async function permanentlyDeleteFromTrash(slug: string): Promise<void> {
+  const trashRef = collection(db, "trash");
+  const q = query(trashRef, where("slug", "==", slug));
+  const querySnapshot = await getDocs(q);
+
+  if (querySnapshot.empty) {
+    throw new Error("Item not found in trash");
+  }
+
+  const docRef = querySnapshot.docs[0].ref;
+  await deleteDoc(docRef);
+}
