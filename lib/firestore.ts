@@ -138,8 +138,8 @@ export async function restoreFromTrash(slug: string): Promise<void> {
   // Remove trash metadata
   const { deletedAt, expiresAt, ...pageData } = trashData;
 
-  // Restore to pages collection
-  const pagesRef = doc(collection(db, "pages"));
+  // Restore to pages collection using the original slug
+  const pagesRef = doc(db, "pages", slug);
   await setDoc(pagesRef, pageData);
 
   // Delete from trash

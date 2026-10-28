@@ -254,5 +254,20 @@ service cloud.firestore {
       allow update: if isAdmin() && isValidTemplate(request.resource.data);
       allow delete: if isAdmin();
     }
+
+    // ===============================================================
+    // Collection: trash
+    // ===============================================================
+
+    match /trash/{trashId} {
+      // Allow read if authenticated
+      allow read: if isAuthenticated();
+
+      // Allow create if authenticated
+      allow create: if isAuthenticated();
+
+      // Allow delete if authenticated
+      allow delete: if isAuthenticated();
+    }
   }
 }
