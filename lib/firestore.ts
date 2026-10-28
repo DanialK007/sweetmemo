@@ -3,6 +3,7 @@ import {
   doc,
   getDoc,
   setDoc,
+  deleteDoc,
   serverTimestamp,
   query,
   where,
@@ -90,4 +91,57 @@ export async function getUserPages(userId: string): Promise<PageData[]> {
   const querySnapshot = await getDocs(q);
 
   return querySnapshot.docs.map((doc) => doc.data() as PageData);
+}
+
+/**
+ * Move a page to trash (soft delete with 30-day retention)
+ */
+export async function moveToTrash(slug: string): Promise<void> {
+  const pagesRef = collection(db, "pages");
+  const q = query(pagesRef, where("slug", "==", slug));
+  const querySnapshot = await getDocs(q);
+
+  if (querySnapshot.empty) {
+    throw new Error("Page not found");
+  }
+
+  const docRef = querySnapshot.docs[0].ref;
+  const pageData = querySnapshot.docs[0].data() as PageData;
+
+  // Move to trash collection
+  const trashRef = doc(collection(db, "trash"));
+  await setDoc(trashRef, {
+    ...pageData,
+    deletedAt: serverTimestamp(),
+    expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+  });
+
+  // Delete from pages collection
+  await deleteDoc(docRef);
+}
+
+/**
+ * Restore a page from trash
+ */
+export async function restoreFromTrash(slug: string): Promise<void> {
+  const trashRef = collection(db, "trash");
+  const q = query(trashRef, where("slug", "==", slug));
+  const querySnapshot = await getDocs(q);
+
+  if (querySnapshot.empty) {
+    throw new Error("Item not found in trash");
+  }
+
+  const trashDoc = querySnapshot.docs[0];
+  const trashData = trashDoc.data() as PageData & { deletedAt: any; expiresAt: any };
+
+  // Remove trash metadata
+  const { deletedAt, expiresAt, ...pageData } = trashData;
+
+  // Restore to pages collection
+  const pagesRef = doc(collection(db, "pages"));
+  await setDoc(pagesRef, pageData);
+
+  // Delete from trash
+  await deleteDoc(trashDoc.ref);
 }

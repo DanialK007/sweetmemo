@@ -19,7 +19,7 @@ import { Footer } from "@/components/Footer";
 import FadeContent from "@/components/FadeContent";
 import { useLanguage } from "@/context/LanguageContext";
 import { useAuth } from "@/context/AuthContext";
-import { getUserPages } from "@/lib/firestore";
+import { getUserPages, moveToTrash } from "@/lib/firestore";
 import {
   BirthdayRetroCamera,
   defaultBirthdayData,
@@ -139,8 +139,28 @@ export default function TodayPage() {
   };
 
   const handleDelete = async (slug: string) => {
-    // TODO: Implement delete with 30-day trash
-    setMenuOpen(null);
+    if (!user) return;
+
+    const confirmed = window.confirm(
+      language === "my"
+        ? "ဤုင်းနှိပ်ချင်းမှာ သိမ်းဆည်းထားပါမည်။ ၃၀ ရက်အတွင်း ပြန်လည်ရယူနိုင်ပါသည်။"
+        : "This will move the card to trash. You can restore it within 30 days."
+    );
+
+    if (!confirmed) return;
+
+    try {
+      await moveToTrash(slug);
+      setPages((prev) => prev.filter((p) => p.slug !== slug));
+      setMenuOpen(null);
+    } catch (err) {
+      console.error("Error deleting card:", err);
+      alert(
+        language === "my"
+          ? "ဖျက်ရာတွင် အမှားဖြစ်ပါသည်"
+          : "Failed to delete card. Please try again."
+      );
+    }
   };
 
   return (
