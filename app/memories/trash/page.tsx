@@ -33,7 +33,7 @@ export default function TrashPage() {
   const { user, loading } = useAuth();
   const [trashItems, setTrashItems] = useState<TrashItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [toasts, setToasts] = useState<{ id: number; type: 'success' | 'error'; title: string; description?: string }[]>([]);
+  const [toasts, setToasts] = useState<{ id: number; type: 'success' | 'error'; title: string; description?: string; actionLabel?: string; onAction?: () => void }[]>([]);
 
   useEffect(() => {
     const fetchTrash = async () => {
@@ -57,48 +57,57 @@ export default function TrashPage() {
     try {
       await restoreFromTrash(slug);
       setTrashItems((prev) => prev.filter((item) => item.slug !== slug));
-      setToasts(t => [...t, { 
-        id: Date.now(), 
-        type: 'success', 
+      setToasts(t => [...t, {
+        id: Date.now(),
+        type: 'success',
         title: language === 'my' ? 'ကတ်ကို ပြန်လည်ရယူပြီးပါပြီ' : 'Card restored',
-        description: language === 'my' ? 'မှတ်များသို့ ပြန်သွားပြီးပါပြီ' : 'Moved back to memories'
+        description: language === 'my' ? 'မှတ်များသို့ ပြန်သွားပြီးပါပြီ' : 'Moved back to memories',
+        actionLabel: language === 'my' ? 'မှတ်များသို့' : 'View memories',
+        onAction: () => window.location.href = '/memories'
       }]);
     } catch (err) {
       console.error("Error restoring card:", err);
-      setToasts(t => [...t, { 
-        id: Date.now(), 
-        type: 'error', 
-        title: language === 'my' ? 'ပြန်လည်ရယူရာတွင် အမှားဖြစ်ပါသည်' : 'Failed to restore card'
+      setToasts(t => [...t, {
+        id: Date.now(),
+        type: 'error',
+        title: language === 'my' ? 'ပြန်လည်ရယူရာတွင် အမှားဖြစ်ပါသည်' : 'Failed to restore card',
+        description: ''
       }]);
     }
   };
 
   const handleDelete = async (slug: string) => {
-    // Permanent delete
-    const confirmed = window.confirm(
-      language === "my"
-        ? "ဤုင်းနှိပ်ချင်းမှာ အမြဲစွာ ဖျက်မည်။ မပြန်လည်ရယူနိုင်ပါ။"
-        : "This will permanently delete the card. It cannot be recovered."
-    );
-
-    if (!confirmed) return;
-
-    try {
-      await permanentlyDeleteFromTrash(slug);
-      setTrashItems((prev) => prev.filter((item) => item.slug !== slug));
-      setToasts(t => [...t, { 
-        id: Date.now(), 
-        type: 'success', 
-        title: language === 'my' ? 'အမြဲစွာ ဖျက်ပြီးပါပြီ' : 'Permanently deleted'
-      }]);
-    } catch (err) {
-      console.error("Error deleting card:", err);
-      setToasts(t => [...t, { 
-        id: Date.now(), 
-        type: 'error', 
-        title: language === 'my' ? 'ဖျက်ရာတွင် အမှားဖြစ်ပါသည်' : 'Failed to delete'
-      }]);
-    }
+    // Permanent delete - show confirmation toast
+    const toastId = Date.now();
+    setToasts(t => [...t, {
+      id: toastId,
+      type: 'error',
+      title: language === 'my' ? 'အမြဲစွာ ဖျက်မည်' : 'Permanently delete?',
+      description: language === 'my' ? 'မပြန်လည်ရယူနိုင်ပါ' : 'This cannot be recovered',
+      actionLabel: language === 'my' ? 'ဖျက်မည်' : 'Delete',
+      onAction: async () => {
+        try {
+          await permanentlyDeleteFromTrash(slug);
+          setTrashItems((prev) => prev.filter((item) => item.slug !== slug));
+          setToasts(s => s.filter(x => x.id !== toastId)); // Remove confirmation toast
+          setToasts(t => [...t, {
+            id: Date.now(),
+            type: 'success',
+            title: language === 'my' ? 'အမြဲစွာ ဖျက်ပြီးပါပြီ' : 'Permanently deleted',
+            description: ''
+          }]);
+        } catch (err) {
+          console.error("Error deleting card:", err);
+          setToasts(s => s.filter(x => x.id !== toastId)); // Remove confirmation toast
+          setToasts(t => [...t, {
+            id: Date.now(),
+            type: 'error',
+            title: language === 'my' ? 'ဖျက်ရာတွင် အမှားဖြစ်ပါသည်' : 'Failed to delete',
+            description: ''
+          }]);
+        }
+      }
+    }]);
   };
 
   // Show loading state
@@ -260,11 +269,21 @@ export default function TrashPage() {
             inline
             title={t.title}
             description={t.description}
-            duration={3000}
+            actionLabel={t.actionLabel}
+            onAction={t.onAction}
+            duration={4000}
             onClose={() => setToasts(s => s.filter(x => x.id !== t.id))}
-            background={t.type === 'error' ? '#dc2626' : '#27272a'}
+            background="#27272a"
             color="#f5f5f5"
-            fuseColor={t.type === 'error' ? '#ef4444' : '#f5a524'}
+            fuseColor="#d52c5a"
+            width={356}
+            radius={12}
+            slideMs={400}
+            settleBounce={0.2}
+            swipeDistance={40}
+            fuse="bottom"
+            pauseOnHover
+            closeButton
           />
         ))}
       </div>

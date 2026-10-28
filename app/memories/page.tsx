@@ -46,7 +46,7 @@ export default function TodayPage() {
   const [copied, setCopied] = useState("");
   const [isLoadingPages, setIsLoadingPages] = useState(true);
   const [menuOpen, setMenuOpen] = useState<string | null>(null);
-  const [toasts, setToasts] = useState<{ id: number; type: 'success' | 'error'; title: string; description?: string }[]>([]);
+  const [toasts, setToasts] = useState<{ id: number; type: 'success' | 'error'; title: string; description?: string; actionLabel?: string; onAction?: () => void }[]>([]);
 
   useEffect(() => {
     const fetchCards = async () => {
@@ -125,10 +125,10 @@ export default function TodayPage() {
     try {
       await navigator.clipboard.writeText(url);
       setCopied(slug);
-      setToasts(t => [...t, { id: Date.now(), type: 'success', title: language === 'my' ? 'လင့်ခ် ကူးပြီးပါပြီ' : 'Link copied' }]);
+      setToasts(t => [...t, { id: Date.now(), type: 'success', title: language === 'my' ? 'လင့်ခ် ကူးပြီးပါပြီ' : 'Link copied', description: '' }]);
       window.setTimeout(() => setCopied(""), 1800);
     } catch {
-      setToasts(t => [...t, { id: Date.now(), type: 'error', title: language === 'my' ? 'လင့်ခ် ကူးမှု မအောင်မြင်ပါ' : 'Failed to copy link' }]);
+      setToasts(t => [...t, { id: Date.now(), type: 'error', title: language === 'my' ? 'လင့်ခ် ကူးမှု မအောင်မြင်ပါ' : 'Failed to copy link', description: '' }]);
       setCopied("");
     }
   };
@@ -145,24 +145,40 @@ export default function TodayPage() {
   const handleDelete = async (slug: string) => {
     if (!user) return;
 
-    try {
-      await moveToTrash(slug);
-      setPages((prev) => prev.filter((p) => p.slug !== slug));
-      setMenuOpen(null);
-      setToasts(t => [...t, { 
-        id: Date.now(), 
-        type: 'success', 
-        title: language === 'my' ? 'ကတ်ကို ဖျက်ပြီးပါပြီ' : 'Card moved to trash',
-        description: language === 'my' ? '၃၀ ရက်အတွင်း ပြန်လည်ရယူနိုင်ပါသည်' : 'Can be restored within 30 days'
-      }]);
-    } catch (err) {
-      console.error("Error deleting card:", err);
-      setToasts(t => [...t, { 
-        id: Date.now(), 
-        type: 'error', 
-        title: language === 'my' ? 'ဖျက်ရာတွင် အမှားဖြစ်ပါသည်' : 'Failed to delete card'
-      }]);
-    }
+    // Show confirmation toast
+    const toastId = Date.now();
+    setToasts(t => [...t, {
+      id: toastId,
+      type: 'error',
+      title: language === 'my' ? 'ကတ်ကို ဖျက်မည်' : 'Move to trash?',
+      description: language === 'my' ? '၃၀ ရက်အတွင်း ပြန်လည်ရယူနိုင်ပါသည်' : 'Can be restored within 30 days',
+      actionLabel: language === 'my' ? 'ဖျက်မည်' : 'Delete',
+      onAction: async () => {
+        try {
+          await moveToTrash(slug);
+          setPages((prev) => prev.filter((p) => p.slug !== slug));
+          setMenuOpen(null);
+          setToasts(s => s.filter(x => x.id !== toastId)); // Remove confirmation toast
+          setToasts(t => [...t, {
+            id: Date.now(),
+            type: 'success',
+            title: language === 'my' ? 'ကတ်ကို ဖျက်ပြီးပါပြီ' : 'Card moved to trash',
+            description: language === 'my' ? '၃၀ ရက်အတွင်း ပြန်လည်ရယူနိုင်ပါသည်' : 'Can be restored within 30 days',
+            actionLabel: language === 'my' ? 'ပြန်ရယူရန်' : 'Restore',
+            onAction: () => window.location.href = '/memories/trash'
+          }]);
+        } catch (err) {
+          console.error("Error deleting card:", err);
+          setToasts(s => s.filter(x => x.id !== toastId)); // Remove confirmation toast
+          setToasts(t => [...t, {
+            id: Date.now(),
+            type: 'error',
+            title: language === 'my' ? 'ဖျက်ရာတွင် အမှားဖြစ်ပါသည်' : 'Failed to delete card',
+            description: ''
+          }]);
+        }
+      }
+    }]);
   };
 
   return (
@@ -455,11 +471,21 @@ export default function TodayPage() {
             inline
             title={t.title}
             description={t.description}
-            duration={3000}
+            actionLabel={t.actionLabel}
+            onAction={t.onAction}
+            duration={4000}
             onClose={() => setToasts(s => s.filter(x => x.id !== t.id))}
-            background={t.type === 'error' ? '#dc2626' : '#27272a'}
+            background="#27272a"
             color="#f5f5f5"
-            fuseColor={t.type === 'error' ? '#ef4444' : '#f5a524'}
+            fuseColor="#d52c5a"
+            width={356}
+            radius={12}
+            slideMs={400}
+            settleBounce={0.2}
+            swipeDistance={40}
+            fuse="bottom"
+            pauseOnHover
+            closeButton
           />
         ))}
       </div>
