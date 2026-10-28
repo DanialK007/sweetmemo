@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -47,6 +47,7 @@ export default function TodayPage() {
   const [isLoadingPages, setIsLoadingPages] = useState(true);
   const [menuOpen, setMenuOpen] = useState<string | null>(null);
   const [toasts, setToasts] = useState<{ id: number; type: 'success' | 'error'; title: string; description?: string; actionLabel?: string; onAction?: () => void }[]>([]);
+  const pendingDeletes = useRef<Map<string, boolean>>(new Map());
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -161,6 +162,9 @@ export default function TodayPage() {
     const pageToDelete = pages.find(p => p.slug === slug);
     if (!pageToDelete) return;
 
+    // Mark this delete as pending
+    pendingDeletes.current.set(slug, true);
+
     // Optimistic: remove from UI immediately
     setPages((prev) => prev.filter((p) => p.slug !== slug));
     setMenuOpen(null);
@@ -174,7 +178,8 @@ export default function TodayPage() {
       description: language === 'my' ? '၃၀ ရက်အတွင်း ပြန်လည်ရယူနိုင်ပါသည်' : 'Can be restored within 30 days',
       actionLabel: language === 'my' ? 'မပြန်ဖျက်ပါ' : 'Undo',
       onAction: () => {
-        // Undo: restore the item in UI immediately
+        // Undo: mark as cancelled and restore the item in UI immediately
+        pendingDeletes.current.set(slug, false);
         setPages((prev) => [...prev, pageToDelete]);
         setToasts(s => s.filter(x => x.id !== toastId));
       }
@@ -182,7 +187,12 @@ export default function TodayPage() {
 
     // Run delete in background
     try {
-      await moveToTrash(slug);
+      // Check if delete was cancelled before actually moving to trash
+      if (pendingDeletes.current.get(slug)) {
+        await moveToTrash(slug);
+      }
+      // Clean up the pending flag
+      pendingDeletes.current.delete(slug);
     } catch (err) {
       console.error("Error deleting card:", err);
       // Restore the item in UI since delete failed
@@ -194,6 +204,7 @@ export default function TodayPage() {
         title: language === 'my' ? 'ဖျက်ရာတွင် အမှားဖြစ်ပါသည်' : 'Failed to delete card',
         description: ''
       }]);
+      pendingDeletes.current.delete(slug);
     }
   };
 
@@ -497,7 +508,7 @@ export default function TodayPage() {
             onAction={t.onAction}
             duration={4000}
             onClose={() => setToasts(s => s.filter(x => x.id !== t.id))}
-            color="#27272a"
+            color="#d52c5a"
             background="#f5f5f5"
             fuseColor="#d52c5a"
             width={356}

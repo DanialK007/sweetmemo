@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, Check, Trash2, RotateCcw, Sparkles } from "lucide-react";
 import { Footer } from "@/components/Footer";
@@ -34,6 +34,7 @@ export default function TrashPage() {
   const [trashItems, setTrashItems] = useState<TrashItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [toasts, setToasts] = useState<{ id: number; type: 'success' | 'error'; title: string; description?: string; actionLabel?: string; onAction?: () => void }[]>([]);
+  const pendingOperations = useRef<Map<string, boolean>>(new Map());
 
   useEffect(() => {
     const fetchTrash = async () => {
@@ -58,6 +59,9 @@ export default function TrashPage() {
     const itemToRestore = trashItems.find(item => item.slug === slug);
     if (!itemToRestore) return;
 
+    // Mark this restore as pending
+    pendingOperations.current.set(slug, true);
+
     // Optimistic: remove from UI immediately
     setTrashItems((prev) => prev.filter((item) => item.slug !== slug));
 
@@ -70,7 +74,8 @@ export default function TrashPage() {
       description: language === 'my' ? 'မှတ်များသို့ ပြန်သွားပြီးပါပြီ' : 'Moved back to memories',
       actionLabel: language === 'my' ? 'မပြန်ရယူပါ' : 'Undo',
       onAction: () => {
-        // Undo: restore the item in UI immediately
+        // Undo: mark as cancelled and restore the item in UI immediately
+        pendingOperations.current.set(slug, false);
         setTrashItems((prev) => [...prev, itemToRestore]);
         setToasts(s => s.filter(x => x.id !== toastId));
       }
@@ -78,7 +83,12 @@ export default function TrashPage() {
 
     // Run restore in background
     try {
-      await restoreFromTrash(slug);
+      // Check if restore was cancelled before actually restoring
+      if (pendingOperations.current.get(slug)) {
+        await restoreFromTrash(slug);
+      }
+      // Clean up the pending flag
+      pendingOperations.current.delete(slug);
     } catch (err) {
       console.error("Error restoring card:", err);
       // Restore the item in UI since restore failed
@@ -90,6 +100,7 @@ export default function TrashPage() {
         title: language === 'my' ? 'ပြန်လည်ရယူရာတွင် အမှားဖြစ်ပါသည်' : 'Failed to restore card',
         description: ''
       }]);
+      pendingOperations.current.delete(slug);
     }
   };
 
@@ -97,6 +108,9 @@ export default function TrashPage() {
     // Find the item to delete
     const itemToDelete = trashItems.find(item => item.slug === slug);
     if (!itemToDelete) return;
+
+    // Mark this delete as pending
+    pendingOperations.current.set(slug, true);
 
     // Optimistic: remove from UI immediately
     setTrashItems((prev) => prev.filter((item) => item.slug !== slug));
@@ -110,7 +124,8 @@ export default function TrashPage() {
       description: language === 'my' ? 'မပြန်လည်ရယူနိုင်ပါ' : 'This cannot be recovered',
       actionLabel: language === 'my' ? 'မပြန်ဖျက်ပါ' : 'Undo',
       onAction: () => {
-        // Undo: restore the item in UI immediately
+        // Undo: mark as cancelled and restore the item in UI immediately
+        pendingOperations.current.set(slug, false);
         setTrashItems((prev) => [...prev, itemToDelete]);
         setToasts(s => s.filter(x => x.id !== toastId));
       }
@@ -118,7 +133,12 @@ export default function TrashPage() {
 
     // Run delete in background
     try {
-      await permanentlyDeleteFromTrash(slug);
+      // Check if delete was cancelled before actually permanently deleting
+      if (pendingOperations.current.get(slug)) {
+        await permanentlyDeleteFromTrash(slug);
+      }
+      // Clean up the pending flag
+      pendingOperations.current.delete(slug);
     } catch (err) {
       console.error("Error deleting card:", err);
       // Restore the item in UI since delete failed
@@ -130,6 +150,7 @@ export default function TrashPage() {
         title: language === 'my' ? 'ဖျက်ရာတွင် အမှားဖြစ်ပါသည်' : 'Failed to delete',
         description: ''
       }]);
+      pendingOperations.current.delete(slug);
     }
   };
 
@@ -296,8 +317,8 @@ export default function TrashPage() {
             onAction={t.onAction}
             duration={4000}
             onClose={() => setToasts(s => s.filter(x => x.id !== t.id))}
-            background="#27272a"
-            color="#f5f5f5"
+            color="#d52c5a"
+            background="#f5f5f5"
             fuseColor="#d52c5a"
             width={356}
             radius={12}
