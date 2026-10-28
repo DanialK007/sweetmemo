@@ -31,7 +31,7 @@ interface SavedPage {
   occasionDate: string | null;
   message: string;
   theme: string;
-  createdAt: string;
+  createdAt: string | { toDate: () => Date };
   birthdayData?: BirthdayCardData;
 }
 
