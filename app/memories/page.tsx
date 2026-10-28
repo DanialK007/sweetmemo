@@ -145,40 +145,44 @@ export default function TodayPage() {
   const handleDelete = async (slug: string) => {
     if (!user) return;
 
-    // Show confirmation toast
+    // Find the page to delete
+    const pageToDelete = pages.find(p => p.slug === slug);
+    if (!pageToDelete) return;
+
+    // Optimistic: remove from UI immediately
+    setPages((prev) => prev.filter((p) => p.slug !== slug));
+    setMenuOpen(null);
+
+    // Show toast with undo button
     const toastId = Date.now();
     setToasts(t => [...t, {
       id: toastId,
-      type: 'error',
-      title: language === 'my' ? 'ကတ်ကို ဖျက်မည်' : 'Move to trash?',
+      type: 'success',
+      title: language === 'my' ? 'ကတ်ကို ဖျက်ပြီးပါပြီ' : 'Card moved to trash',
       description: language === 'my' ? '၃၀ ရက်အတွင်း ပြန်လည်ရယူနိုင်ပါသည်' : 'Can be restored within 30 days',
-      actionLabel: language === 'my' ? 'ဖျက်မည်' : 'Delete',
-      onAction: async () => {
-        try {
-          await moveToTrash(slug);
-          setPages((prev) => prev.filter((p) => p.slug !== slug));
-          setMenuOpen(null);
-          setToasts(s => s.filter(x => x.id !== toastId)); // Remove confirmation toast
-          setToasts(t => [...t, {
-            id: Date.now(),
-            type: 'success',
-            title: language === 'my' ? 'ကတ်ကို ဖျက်ပြီးပါပြီ' : 'Card moved to trash',
-            description: language === 'my' ? '၃၀ ရက်အတွင်း ပြန်လည်ရယူနိုင်ပါသည်' : 'Can be restored within 30 days',
-            actionLabel: language === 'my' ? 'ပြန်ရယူရန်' : 'Restore',
-            onAction: () => window.location.href = '/memories/trash'
-          }]);
-        } catch (err) {
-          console.error("Error deleting card:", err);
-          setToasts(s => s.filter(x => x.id !== toastId)); // Remove confirmation toast
-          setToasts(t => [...t, {
-            id: Date.now(),
-            type: 'error',
-            title: language === 'my' ? 'ဖျက်ရာတွင် အမှားဖြစ်ပါသည်' : 'Failed to delete card',
-            description: ''
-          }]);
-        }
+      actionLabel: language === 'my' ? 'မပြန်ဖျက်ပါ' : 'Undo',
+      onAction: () => {
+        // Undo: restore the item in UI immediately
+        setPages((prev) => [...prev, pageToDelete]);
+        setToasts(s => s.filter(x => x.id !== toastId));
       }
     }]);
+
+    // Run delete in background
+    try {
+      await moveToTrash(slug);
+    } catch (err) {
+      console.error("Error deleting card:", err);
+      // Restore the item in UI since delete failed
+      setPages((prev) => [...prev, pageToDelete]);
+      setToasts(s => s.filter(x => x.id !== toastId));
+      setToasts(t => [...t, {
+        id: Date.now(),
+        type: 'error',
+        title: language === 'my' ? 'ဖျက်ရာတွင် အမှားဖြစ်ပါသည်' : 'Failed to delete card',
+        description: ''
+      }]);
+    }
   };
 
   return (
@@ -475,8 +479,8 @@ export default function TodayPage() {
             onAction={t.onAction}
             duration={4000}
             onClose={() => setToasts(s => s.filter(x => x.id !== t.id))}
-            background="#27272a"
-            color="#f5f5f5"
+            color="#27272a"
+            background="#f5f5f5"
             fuseColor="#d52c5a"
             width={356}
             radius={12}

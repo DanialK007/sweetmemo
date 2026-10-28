@@ -54,19 +54,36 @@ export default function TrashPage() {
   }, [user]);
 
   const handleRestore = async (slug: string) => {
+    // Find the item to restore
+    const itemToRestore = trashItems.find(item => item.slug === slug);
+    if (!itemToRestore) return;
+
+    // Optimistic: remove from UI immediately
+    setTrashItems((prev) => prev.filter((item) => item.slug !== slug));
+
+    // Show toast with undo button
+    const toastId = Date.now();
+    setToasts(t => [...t, {
+      id: toastId,
+      type: 'success',
+      title: language === 'my' ? 'ကတ်ကို ပြန်လည်ရယူပြီးပါပြီ' : 'Card restored',
+      description: language === 'my' ? 'မှတ်များသို့ ပြန်သွားပြီးပါပြီ' : 'Moved back to memories',
+      actionLabel: language === 'my' ? 'မပြန်ရယူပါ' : 'Undo',
+      onAction: () => {
+        // Undo: restore the item in UI immediately
+        setTrashItems((prev) => [...prev, itemToRestore]);
+        setToasts(s => s.filter(x => x.id !== toastId));
+      }
+    }]);
+
+    // Run restore in background
     try {
       await restoreFromTrash(slug);
-      setTrashItems((prev) => prev.filter((item) => item.slug !== slug));
-      setToasts(t => [...t, {
-        id: Date.now(),
-        type: 'success',
-        title: language === 'my' ? 'ကတ်ကို ပြန်လည်ရယူပြီးပါပြီ' : 'Card restored',
-        description: language === 'my' ? 'မှတ်များသို့ ပြန်သွားပြီးပါပြီ' : 'Moved back to memories',
-        actionLabel: language === 'my' ? 'မှတ်များသို့' : 'View memories',
-        onAction: () => window.location.href = '/memories'
-      }]);
     } catch (err) {
       console.error("Error restoring card:", err);
+      // Restore the item in UI since restore failed
+      setTrashItems((prev) => [...prev, itemToRestore]);
+      setToasts(s => s.filter(x => x.id !== toastId));
       setToasts(t => [...t, {
         id: Date.now(),
         type: 'error',
@@ -77,37 +94,43 @@ export default function TrashPage() {
   };
 
   const handleDelete = async (slug: string) => {
-    // Permanent delete - show confirmation toast
+    // Find the item to delete
+    const itemToDelete = trashItems.find(item => item.slug === slug);
+    if (!itemToDelete) return;
+
+    // Optimistic: remove from UI immediately
+    setTrashItems((prev) => prev.filter((item) => item.slug !== slug));
+
+    // Show toast with undo button
     const toastId = Date.now();
     setToasts(t => [...t, {
       id: toastId,
       type: 'error',
-      title: language === 'my' ? 'အမြဲစွာ ဖျက်မည်' : 'Permanently delete?',
+      title: language === 'my' ? 'အမြဲစွာ ဖျက်ပြီးပါပြီ' : 'Permanently deleted',
       description: language === 'my' ? 'မပြန်လည်ရယူနိုင်ပါ' : 'This cannot be recovered',
-      actionLabel: language === 'my' ? 'ဖျက်မည်' : 'Delete',
-      onAction: async () => {
-        try {
-          await permanentlyDeleteFromTrash(slug);
-          setTrashItems((prev) => prev.filter((item) => item.slug !== slug));
-          setToasts(s => s.filter(x => x.id !== toastId)); // Remove confirmation toast
-          setToasts(t => [...t, {
-            id: Date.now(),
-            type: 'success',
-            title: language === 'my' ? 'အမြဲစွာ ဖျက်ပြီးပါပြီ' : 'Permanently deleted',
-            description: ''
-          }]);
-        } catch (err) {
-          console.error("Error deleting card:", err);
-          setToasts(s => s.filter(x => x.id !== toastId)); // Remove confirmation toast
-          setToasts(t => [...t, {
-            id: Date.now(),
-            type: 'error',
-            title: language === 'my' ? 'ဖျက်ရာတွင် အမှားဖြစ်ပါသည်' : 'Failed to delete',
-            description: ''
-          }]);
-        }
+      actionLabel: language === 'my' ? 'မပြန်ဖျက်ပါ' : 'Undo',
+      onAction: () => {
+        // Undo: restore the item in UI immediately
+        setTrashItems((prev) => [...prev, itemToDelete]);
+        setToasts(s => s.filter(x => x.id !== toastId));
       }
     }]);
+
+    // Run delete in background
+    try {
+      await permanentlyDeleteFromTrash(slug);
+    } catch (err) {
+      console.error("Error deleting card:", err);
+      // Restore the item in UI since delete failed
+      setTrashItems((prev) => [...prev, itemToDelete]);
+      setToasts(s => s.filter(x => x.id !== toastId));
+      setToasts(t => [...t, {
+        id: Date.now(),
+        type: 'error',
+        title: language === 'my' ? 'ဖျက်ရာတွင် အမှားဖြစ်ပါသည်' : 'Failed to delete',
+        description: ''
+      }]);
+    }
   };
 
   // Show loading state
