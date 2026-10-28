@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, Check, Trash2, RotateCcw, Sparkles } from "lucide-react";
 import { Footer } from "@/components/Footer";
@@ -33,8 +33,7 @@ export default function TrashPage() {
   const { user, loading } = useAuth();
   const [trashItems, setTrashItems] = useState<TrashItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [toasts, setToasts] = useState<{ id: number; type: 'success' | 'error'; title: string; description?: string; actionLabel?: string; onAction?: () => void; onClose?: () => void }[]>([]);
-  const pendingOperations = useRef<Map<string, boolean>>(new Map());
+  const [toasts, setToasts] = useState<{ id: number; type: 'success' | 'error'; title: string; description?: string }[]>([]);
 
   useEffect(() => {
     const fetchTrash = async () => {
@@ -59,45 +58,31 @@ export default function TrashPage() {
     const itemToRestore = trashItems.find(item => item.slug === slug);
     if (!itemToRestore) return;
 
-    // Mark this restore as pending (not cancelled)
-    pendingOperations.current.set(slug, true);
-
     // Optimistic: remove from UI immediately
     setTrashItems((prev) => prev.filter((item) => item.slug !== slug));
 
-    // Show toast with undo button
-    const toastId = Date.now();
+    // Show toast
     setToasts(t => [...t, {
-      id: toastId,
+      id: Date.now(),
       type: 'success',
       title: language === 'my' ? 'ကတ်ကို ပြန်လည်ရယူပြီးပါပြီ' : 'Card restored',
-      description: language === 'my' ? 'မှတ်များသို့ ပြန်သွားပြီးပါပြီ' : 'Moved back to memories',
-      actionLabel: language === 'my' ? 'မပြန်ရယူပါ' : 'Undo',
-      onAction: () => {
-        // Undo: mark as cancelled and restore the item in UI immediately
-        pendingOperations.current.set(slug, false);
-        setTrashItems((prev) => [...prev, itemToRestore]);
-        setToasts(s => s.filter(x => x.id !== toastId));
-      },
-      onClose: () => {
-        // Toast closed naturally - execute the database operation if not cancelled
-        if (pendingOperations.current.get(slug)) {
-          restoreFromTrash(slug).catch(err => {
-            console.error("Error restoring card:", err);
-            // Restore the item in UI since restore failed
-            setTrashItems((prev) => [...prev, itemToRestore]);
-            setToasts(t => [...t, {
-              id: Date.now(),
-              type: 'error',
-              title: language === 'my' ? 'ပြန်လည်ရယူရာတွင် အမှားဖြစ်ပါသည်' : 'Failed to restore card',
-              description: ''
-            }]);
-          });
-        }
-        // Clean up the pending flag
-        pendingOperations.current.delete(slug);
-      }
+      description: language === 'my' ? 'မှတ်များသို့ ပြန်သွားပြီးပါပြီ' : 'Moved back to memories'
     }]);
+
+    // Run restore in background
+    try {
+      await restoreFromTrash(slug);
+    } catch (err) {
+      console.error("Error restoring card:", err);
+      // Restore the item in UI since restore failed
+      setTrashItems((prev) => [...prev, itemToRestore]);
+      setToasts(t => [...t, {
+        id: Date.now(),
+        type: 'error',
+        title: language === 'my' ? 'ပြန်လည်ရယူရာတွင် အမှားဖြစ်ပါသည်' : 'Failed to restore card',
+        description: ''
+      }]);
+    }
   };
 
   const handleDelete = async (slug: string) => {
@@ -105,45 +90,31 @@ export default function TrashPage() {
     const itemToDelete = trashItems.find(item => item.slug === slug);
     if (!itemToDelete) return;
 
-    // Mark this delete as pending (not cancelled)
-    pendingOperations.current.set(slug, true);
-
     // Optimistic: remove from UI immediately
     setTrashItems((prev) => prev.filter((item) => item.slug !== slug));
 
-    // Show toast with undo button
-    const toastId = Date.now();
+    // Show toast
     setToasts(t => [...t, {
-      id: toastId,
+      id: Date.now(),
       type: 'error',
       title: language === 'my' ? 'အမြဲစွာ ဖျက်ပြီးပါပြီ' : 'Permanently deleted',
-      description: language === 'my' ? 'မပြန်လည်ရယူနိုင်ပါ' : 'This cannot be recovered',
-      actionLabel: language === 'my' ? 'မပြန်ဖျက်ပါ' : 'Undo',
-      onAction: () => {
-        // Undo: mark as cancelled and restore the item in UI immediately
-        pendingOperations.current.set(slug, false);
-        setTrashItems((prev) => [...prev, itemToDelete]);
-        setToasts(s => s.filter(x => x.id !== toastId));
-      },
-      onClose: () => {
-        // Toast closed naturally - execute the database operation if not cancelled
-        if (pendingOperations.current.get(slug)) {
-          permanentlyDeleteFromTrash(slug).catch(err => {
-            console.error("Error deleting card:", err);
-            // Restore the item in UI since delete failed
-            setTrashItems((prev) => [...prev, itemToDelete]);
-            setToasts(t => [...t, {
-              id: Date.now(),
-              type: 'error',
-              title: language === 'my' ? 'ဖျက်ရာတွင် အမှားဖြစ်ပါသည်' : 'Failed to delete',
-              description: ''
-            }]);
-          });
-        }
-        // Clean up the pending flag
-        pendingOperations.current.delete(slug);
-      }
+      description: language === 'my' ? 'မပြန်လည်ရယူနိုင်ပါ' : 'This cannot be recovered'
     }]);
+
+    // Run delete in background
+    try {
+      await permanentlyDeleteFromTrash(slug);
+    } catch (err) {
+      console.error("Error deleting card:", err);
+      // Restore the item in UI since delete failed
+      setTrashItems((prev) => [...prev, itemToDelete]);
+      setToasts(t => [...t, {
+        id: Date.now(),
+        type: 'error',
+        title: language === 'my' ? 'ဖျက်ရာတွင် အမှားဖြစ်ပါသည်' : 'Failed to delete',
+        description: ''
+      }]);
+    }
   };
 
   // Show loading state
@@ -305,15 +276,10 @@ export default function TrashPage() {
             inline
             title={t.title}
             description={t.description}
-            actionLabel={t.actionLabel}
-            onAction={t.onAction}
             duration={4000}
-            onClose={() => {
-              t.onClose?.();
-              setToasts(s => s.filter(x => x.id !== t.id));
-            }}
-            background="#27272a"
-            color="#f5f5f5"
+            onClose={() => setToasts(s => s.filter(x => x.id !== t.id))}
+            background="#f5f5f5"
+            color="#d52c5a"
             fuseColor="#d52c5a"
             width={356}
             radius={12}

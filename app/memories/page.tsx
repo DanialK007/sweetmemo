@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -46,8 +46,7 @@ export default function TodayPage() {
   const [copied, setCopied] = useState("");
   const [isLoadingPages, setIsLoadingPages] = useState(true);
   const [menuOpen, setMenuOpen] = useState<string | null>(null);
-  const [toasts, setToasts] = useState<{ id: number; type: 'success' | 'error'; title: string; description?: string; actionLabel?: string; onAction?: () => void; onClose?: () => void }[]>([]);
-  const pendingDeletes = useRef<Map<string, boolean>>(new Map());
+  const [toasts, setToasts] = useState<{ id: number; type: 'success' | 'error'; title: string; description?: string }[]>([]);
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -162,46 +161,32 @@ export default function TodayPage() {
     const pageToDelete = pages.find(p => p.slug === slug);
     if (!pageToDelete) return;
 
-    // Mark this delete as pending (not cancelled)
-    pendingDeletes.current.set(slug, true);
-
     // Optimistic: remove from UI immediately
     setPages((prev) => prev.filter((p) => p.slug !== slug));
     setMenuOpen(null);
 
-    // Show toast with undo button
-    const toastId = Date.now();
+    // Show toast
     setToasts(t => [...t, {
-      id: toastId,
+      id: Date.now(),
       type: 'success',
       title: language === 'my' ? 'ကတ်ကို ဖျက်ပြီးပါပြီ' : 'Card moved to trash',
-      description: language === 'my' ? '၃၀ ရက်အတွင်း ပြန်လည်ရယူနိုင်ပါသည်' : 'Can be restored within 30 days',
-      actionLabel: language === 'my' ? 'မပြန်ဖျက်ပါ' : 'Undo',
-      onAction: () => {
-        // Undo: mark as cancelled and restore the item in UI immediately
-        pendingDeletes.current.set(slug, false);
-        setPages((prev) => [...prev, pageToDelete]);
-        setToasts(s => s.filter(x => x.id !== toastId));
-      },
-      onClose: () => {
-        // Toast closed naturally - execute the database operation if not cancelled
-        if (pendingDeletes.current.get(slug)) {
-          moveToTrash(slug).catch(err => {
-            console.error("Error deleting card:", err);
-            // Restore the item in UI since delete failed
-            setPages((prev) => [...prev, pageToDelete]);
-            setToasts(t => [...t, {
-              id: Date.now(),
-              type: 'error',
-              title: language === 'my' ? 'ဖျက်ရာတွင် အမှားဖြစ်ပါသည်' : 'Failed to delete card',
-              description: ''
-            }]);
-          });
-        }
-        // Clean up the pending flag
-        pendingDeletes.current.delete(slug);
-      }
+      description: language === 'my' ? '၃၀ ရက်အတွင်း ပြန်လည်ရယူနိုင်ပါသည်' : 'Can be restored within 30 days'
     }]);
+
+    // Run delete in background
+    try {
+      await moveToTrash(slug);
+    } catch (err) {
+      console.error("Error deleting card:", err);
+      // Restore the item in UI since delete failed
+      setPages((prev) => [...prev, pageToDelete]);
+      setToasts(t => [...t, {
+        id: Date.now(),
+        type: 'error',
+        title: language === 'my' ? 'ဖျက်ရာတွင် အမှားဖြစ်ပါသည်' : 'Failed to delete card',
+        description: ''
+      }]);
+    }
   };
 
   return (
@@ -500,15 +485,10 @@ export default function TodayPage() {
             inline
             title={t.title}
             description={t.description}
-            actionLabel={t.actionLabel}
-            onAction={t.onAction}
             duration={4000}
-            onClose={() => {
-              t.onClose?.();
-              setToasts(s => s.filter(x => x.id !== t.id));
-            }}
-            background="#27272a"
-            color="#f5f5f5"
+            onClose={() => setToasts(s => s.filter(x => x.id !== t.id))}
+            background="#f5f5f5"
+            color="#d52c5a"
             fuseColor="#d52c5a"
             width={356}
             radius={12}
