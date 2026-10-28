@@ -222,40 +222,82 @@ export default function TrashPage() {
                 </Link>
               </div>
             ) : (
-              <div className="space-y-4 mt-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
                 {trashItems.map((item, index) => (
                   <div
                     key={`${item.slug}-${index}`}
-                    className="group relative rounded-2xl border border-[#f4e6e9] bg-white p-4 shadow-sm hover:shadow-md transition-all"
+                    className="group relative rounded-3xl border border-[#f4e6e9] bg-white p-4 shadow-sm hover:shadow-lg transition-all overflow-hidden"
                   >
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <h3 className="font-serif font-bold text-lg text-[#56343e]">
-                          {language === 'my' ? `${item.recipientName} အတွက်` : `For ${item.recipientName}`}
-                        </h3>
-                        <p className="text-xs text-[#99848a]">
-                          {language === 'my' ? `${item.senderName} မှ` : `From ${item.senderName}`}
-                        </p>
-                        <p className="text-[10px] text-[#9b848a] mt-1">
-                          {language === 'my' ? 'ဖျက်ခဲ့ထားသည့်ရက်: ' : 'Deleted: '}
-                          {item.deletedAt?.toDate ? new Date(item.deletedAt.toDate()).toLocaleDateString() : 'N/A'}
-                        </p>
-                      </div>
+                    {/* Card Preview */}
+                    <div className="aspect-4/3 scale-[2.25] translate-y-12 rounded-2xl overflow-hidden bg-linear-to-b mb-4 relative">
+                      {item.templateSlug === "soft-confetti" ||
+                      item.birthdayData ? (
+                        <div className="w-full h-full transform scale-50 origin-top">
+                          <BirthdayRetroCamera
+                            data={
+                              item.birthdayData || {
+                                ...defaultBirthdayData,
+                                recipientName: item.recipientName,
+                                senderName: item.senderName.startsWith("—")
+                                  ? item.senderName
+                                  : `— ${item.senderName}`,
+                                occasionDate:
+                                  item.occasionDate ||
+                                  defaultBirthdayData.occasionDate,
+                                letterContent:
+                                  item.message ||
+                                  defaultBirthdayData.letterContent,
+                              }
+                            }
+                            mode="editor-preview"
+                            theme={item.theme as "rose" | "lavender" | "gold"}
+                          />
+                        </div>
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-[#f8f6fd] to-[#f0edf9]">
+                          <span className="text-6xl">💝</span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="h-20"></div>
+
+                    <div className="absolute top-0 right-0 p-4 z-10">
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => handleRestore(item.slug)}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold transition-colors"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold transition-colors shadow-sm"
                         >
                           <RotateCcw size={12} />
                           <span>{language === 'my' ? 'ပြန်ရယူ' : 'Restore'}</span>
                         </button>
                         <button
                           onClick={() => handleDelete(item.slug)}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500 hover:bg-red-600 text-white text-xs font-bold transition-colors"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500 hover:bg-red-600 text-white text-xs font-bold transition-colors shadow-sm"
                         >
                           <Trash2 size={12} />
                           <span>{language === 'my' ? 'အမြဲစွာဖျက်' : 'Delete'}</span>
                         </button>
+                      </div>
+                    </div>
+
+                    <div className="absolute inset-0 z-5 bg-linear-to-t from-white via-white/50 from-5% via-60% to-80% flex flex-col justify-end p-4">
+                      {/* Card Info */}
+                      <div className="space-y-1 z-10 relative">
+                        <h3 className="font-serif font-bold text-lg text-[#56343e] truncate">
+                          {language === "my"
+                            ? `${item.recipientName} အတွက်`
+                            : `For ${item.recipientName}`}
+                        </h3>
+                        <p className="text-[11px] text-[#99848a] truncate">
+                          {language === "my"
+                            ? `${item.senderName} မှ`
+                            : `From ${item.senderName}`}
+                        </p>
+                        <p className="text-[10px] text-[#9b848a]">
+                          {language === 'my' ? 'ဖျက်ခဲ့ထားသည့်ရက်: ' : 'Deleted: '}
+                          {item.deletedAt?.toDate ? new Date(item.deletedAt.toDate()).toLocaleDateString() : 'N/A'}
+                        </p>
                       </div>
                     </div>
                   </div>
