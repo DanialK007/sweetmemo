@@ -542,6 +542,15 @@ export function BirthdayRetroCamera({
               <ArrowLeft size={13} />
               <span>ဒီဇိုင်းများဆီ ပြန်သွားမယ်</span>
             </button>
+          ) : mode === "public" ? (
+            <Link
+              href="/memories"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-[#7a5963] bg-white/80 px-3.5 py-1.5 rounded-full border border-[#f0dce1] shadow-2xs transition-all"
+              style={{ color: colors.accent }}
+            >
+              <ArrowLeft size={13} />
+              <span>မှတ်များသို့ ပြန်သွားမယ်</span>
+            </Link>
           ) : (
             <Link
               href="/templates"
@@ -587,7 +596,13 @@ export function BirthdayRetroCamera({
             <img
               src="/img/bd1.png"
               alt="confetti"
-              style={{ transform: "rotate(-9deg)", animation: "stickerFloat 3s ease-in-out infinite", "--rotate": "-9deg" } as React.CSSProperties}
+              style={
+                {
+                  transform: "rotate(-9deg)",
+                  animation: "stickerFloat 3s ease-in-out infinite",
+                  "--rotate": "-9deg",
+                } as React.CSSProperties
+              }
               className="absolute -left-14 -bottom-32 h-36 object-contain select-none filter drop-shadow-md z-10 pointer-events-none"
             />
 
@@ -1006,7 +1021,13 @@ export function BirthdayRetroCamera({
             <img
               src="/img/bd2.png"
               alt="confetti"
-              style={{ transform: "rotate(8deg)", animation: "stickerRotate 3.5s ease-in-out infinite", "--rotate": "8deg" } as React.CSSProperties}
+              style={
+                {
+                  transform: "rotate(8deg)",
+                  animation: "stickerRotate 3.5s ease-in-out infinite",
+                  "--rotate": "8deg",
+                } as React.CSSProperties
+              }
               className="absolute -right-16 top-2 h-28 object-contain select-none filter drop-shadow-md z-10 pointer-events-none"
             />
           </div>
@@ -1024,9 +1045,9 @@ export function BirthdayRetroCamera({
 
         {/* Sticky Note */}
         <SlideLeft delay={0.38}>
-          <div className="sticky max-w-40 relative transform -rotate-2 mt-4 mb-3">
+          <div className="sticky relative max-w-40 relative transform -rotate-2 mt-4 mb-3">
             <p
-              className="px-5 py-1.5 rounded-xs font-serif italic font-extrabold text-sm shadow-2xs tracking-wide"
+              className="px-5 pt-3.5 pb-2 rounded-xs font-serif italic font-extrabold text-sm shadow-2xs tracking-wide"
               style={{
                 backgroundColor: colors.bgLight,
                 borderColor: colors.border,
@@ -1035,6 +1056,13 @@ export function BirthdayRetroCamera({
             >
               {data.stickyNoteText}
             </p>
+
+            <div
+              className="absolute -top-2 left-1/2 -translate-x-1/2 rotate-5 opacity-60 w-8 h-4"
+              style={{
+                backgroundColor: colors.tertiary,
+              }}
+            ></div>
           </div>
         </SlideLeft>
 
@@ -1082,8 +1110,14 @@ export function BirthdayRetroCamera({
             <img
               src="/img/bd4.png"
               alt="confetti"
-              style={{ transform: "rotate(-6deg)", animation: "stickerRotate 3.2s ease-in-out infinite", "--rotate": "-6deg" } as React.CSSProperties}
-              className="absolute -bottom-12 -left-12 w-16 h-28 object-contain select-none z-30 filter drop-shadow-xs pointer-events-none"
+              style={
+                {
+                  transform: "rotate(-6deg)",
+                  animation: "stickerRotate 6s ease-in-out infinite",
+                  "--rotate": "-6deg",
+                } as React.CSSProperties
+              }
+              className="absolute -bottom-12 -left-6 w-16 h-28 object-contain select-none z-30 filter drop-shadow-xs pointer-events-none"
             />
 
             {/* ─── THE RETRO CAMERA ─── */}
@@ -1480,7 +1514,7 @@ export function BirthdayRetroCamera({
                     >
                       •
                     </button>
-                    
+
                     {/* Prev Button */}
                     <button
                       type="button"
@@ -1672,13 +1706,19 @@ export function BirthdayRetroCamera({
             <img
               src="/img/bd5.png"
               alt="confetti"
-              style={{ transform: "rotate(9deg)", animation: "stickerFloat 3.8s ease-in-out infinite", "--rotate": "9deg" } as React.CSSProperties}
+              style={
+                {
+                  transform: "rotate(9deg)",
+                  animation: "stickerFloat 5.6s ease-in-out infinite",
+                  "--rotate": "9deg",
+                } as React.CSSProperties
+              }
               className="ps absolute -right-3 -top-6 w-20 h-20 object-contain select-none z-20 filter drop-shadow-xs pointer-events-none"
             />
 
             {/* Lined Notebook Paper */}
             <div
-              className="letter w-full p-5 pt-6 shadow-lg border relative overflow-hidden"
+              className="letter w-full p-5 pt-6 -rotate-1 shadow-lg border relative overflow-hidden"
               style={{
                 backgroundColor: "#fff",
                 borderColor:
@@ -1756,14 +1796,26 @@ export function BirthdayRetroCamera({
             <img
               src="/img/bd6.png"
               alt="confetti"
-              style={{ transform: "rotate(-5deg)", animation: "stickerSqueeze 3.3s ease-in-out infinite", "--rotate": "-5deg" } as React.CSSProperties}
-              className="absolute -left-14 bottom-12 w-16 h-16 object-contain select-none z-20 filter drop-shadow-xs pointer-events-none"
+              style={
+                {
+                  transform: "rotate(-5deg)",
+                  animation: "stickerSqueeze 3.3s ease-in-out infinite",
+                  "--rotate": "-5deg",
+                } as React.CSSProperties
+              }
+              className="absolute -left-8 bottom-12 w-16 h-16 object-contain select-none z-20 filter drop-shadow-xs pointer-events-none"
             />
             <img
               src="/img/bd3.png"
               alt="confetti"
-              style={{ transform: "rotate(-5deg)", animation: "stickerRotate 3.3s ease-in-out infinite", "--rotate": "-5deg" } as React.CSSProperties}
-              className="absolute -right-14 top-8 w-20 h-28 object-contain select-none z-20 filter drop-shadow-xs pointer-events-none"
+              style={
+                {
+                  transform: "rotate(-5deg)",
+                  animation: "stickerRotate 3.3s ease-in-out infinite",
+                  "--rotate": "-5deg",
+                } as React.CSSProperties
+              }
+              className="absolute -right-8 top-8 w-20 h-28 object-contain select-none z-20 filter drop-shadow-xs pointer-events-none"
             />
             <b className="block font-extrabold text-3xl sm:text-4xl text-[#df2e62] tracking-wide select-none drop-shadow-2xs">
               {data.closingTitle}

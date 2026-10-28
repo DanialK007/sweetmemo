@@ -214,11 +214,11 @@ export default function TrashPage() {
                     : 'No deleted cards found'}
                 </p>
                 <Link
-                  href="/templates"
+                  href="/memories"
                   className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#d92d5c] hover:bg-[#bf214c] text-white font-bold text-xs shadow-xs"
                 >
-                  <span>{language === 'my' ? 'ကတ်သစ်ဖန်တီးမယ်' : 'Create a card'}</span>
-                  <Sparkles size={14} />
+                  <span>{language === 'my' ? 'မှတ်များသို့ ပြန်သွားမယ်' : 'Back to Memories'}</span>
+                  <ArrowLeft size={14} />
                 </Link>
               </div>
             ) : (
@@ -329,7 +329,6 @@ export default function TrashPage() {
             settleBounce={0.2}
             swipeDistance={40}
             fuse="bottom"
-            pauseOnHover
             closeButton
           />
         ))}
