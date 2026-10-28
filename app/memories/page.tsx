@@ -207,7 +207,7 @@ export default function TodayPage() {
 
                   <div className="flex items-center gap-2">
                     <Link
-                      href="/trash"
+                      href="/memories/trash"
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#f8ebed] hover:bg-[#f0dce1] text-[#806c72] hover:text-[#56343e] text-xs font-bold transition-colors"
                     >
                       <Trash2 size={14} />
