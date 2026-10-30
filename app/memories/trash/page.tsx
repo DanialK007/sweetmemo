@@ -7,7 +7,7 @@ import { Footer } from "@/components/Footer";
 import FadeContent from "@/components/FadeContent";
 import { useLanguage } from "@/context/LanguageContext";
 import { useAuth } from "@/context/AuthContext";
-import { getUserTrash, restoreFromTrash, permanentlyDeleteFromTrash } from "@/lib/firestore";
+import { getUserTrash, restoreFromTrash, permanentlyDeleteFromTrash, type PageData } from "@/lib/firestore";
 import {
   BirthdayRetroCamera,
   defaultBirthdayData,
@@ -15,18 +15,10 @@ import {
 } from "@/components/templates/BirthdayRetroCamera";
 import SwipeToast from "@/components/SwipeToast";
 
-interface TrashItem {
-  slug: string;
-  templateSlug: string;
-  recipientName: string;
-  senderName: string;
-  occasionDate: string | null;
-  message: string;
-  theme: string;
-  birthdayData?: any;
+type TrashItem = PageData & {
   deletedAt: any;
   expiresAt: any;
-}
+};
 
 export default function TrashPage() {
   const { t, language } = useLanguage();
