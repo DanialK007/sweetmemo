@@ -496,7 +496,6 @@ export default function TodayPage() {
             settleBounce={0.2}
             swipeDistance={40}
             fuse="bottom"
-            pauseOnHover
             closeButton
           />
         ))}
